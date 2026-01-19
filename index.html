@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
 
     <style>
         :root {
@@ -129,12 +129,11 @@
         .score-display {
             font-size: 3.8rem;
             font-weight: 800;
-            /* تم تثبيت اللون هنا ليكون داكناً دائماً */
             color: var(--text-main); 
             margin-top: -65px;
             position: relative;
             z-index: 10;
-            text-shadow: 0 4px 12px rgba(255, 255, 255, 0.8); /* إضافة ظل أبيض خفيف لضمان التباين */
+            text-shadow: 0 4px 12px rgba(255, 255, 255, 0.8);
             line-height: 1;
         }
 
@@ -294,7 +293,6 @@
             cursor: not-allowed;
         }
 
-        /* تنسيق الأعمدة */
         .col-name { width: 30%; }
         .col-grade { width: 15%; }
         .col-coef { width: 10%; }
@@ -332,6 +330,7 @@
             border-top: 1px solid #e2e8f0;
         }
         
+        /* هذا الكلاس سيستخدم لإخفاء العناصر قبل التصوير */
         .hide-on-capture { display: none !important; }
 
         @media (max-width: 768px) {
@@ -364,7 +363,7 @@
         <div class="mention" id="mentionText">ابدأ بإدخال النقاط</div>
     </div>
 
-    <div class="controls" data-html2canvas-ignore="false">
+    <div class="controls">
         <button class="btn-add" onclick="addRow(true)">
             <span>+</span> إضافة مادة
         </button>
@@ -400,7 +399,7 @@
 </div>
 
 <script>
-    const STORAGE_KEY = 'smaic_calc_v8_final';
+    const STORAGE_KEY = 'smaic_calc_v9_fixed_export';
     
     const defaultRow = {name: "", exam: null, td: null, coef: 1, mode: "mixed"};
     let subjects = [];
@@ -430,7 +429,6 @@
             
             const examVal = sub.exam === null ? '' : sub.exam;
             const tdVal = sub.td === null ? '' : sub.td;
-
             const examDisabled = sub.mode === 'td_100';
             const tdDisabled = sub.mode === 'exam_100';
 
@@ -572,17 +570,15 @@
         const gaugeFill = document.getElementById('gaugeFill');
 
         scoreEl.innerText = gpa.toFixed(2);
-        
-        // هنا قمنا بتثبيت لون المعدل ليكون دائماً غامقاً
         scoreEl.style.color = '#1e293b'; 
 
-        let gaugeColor = '#ef4444'; // لون الدائرة
+        let gaugeColor = '#ef4444';
         let mention = 'مؤجل (Ajourné)';
         let bgColor = '#fef2f2';
 
         if (!hasData && gpa === 0) {
             mention = 'بانتظار إدخال النقاط...';
-            gaugeColor = '#64748b'; // لون رمادي عند البداية
+            gaugeColor = '#64748b';
             bgColor = '#f8fafc';
         } else {
             if (gpa >= 10) { mention = 'مقبول (Passable)'; gaugeColor = '#f59e0b'; bgColor = '#fffbeb'; }
@@ -592,7 +588,6 @@
             if (gpa < 10) { gaugeColor = '#ef4444'; bgColor = '#fef2f2'; }
         }
 
-        // تطبيق اللون على الملاحظة والخلفية فقط، وليس على الرقم
         mentionEl.innerText = mention;
         mentionEl.style.color = gaugeColor;
         mentionEl.style.backgroundColor = bgColor;
@@ -600,7 +595,6 @@
         const percentage = Math.min(Math.max(gpa, 0), 20) / 20;
         const rotation = -180 + (percentage * 180);
         
-        // تطبيق اللون على الدائرة فقط
         gaugeFill.style.transform = `rotate(${rotation}deg)`;
         gaugeFill.style.backgroundColor = gaugeColor;
     }
@@ -618,6 +612,7 @@
         }
     }
 
+    // --- الوظيفة الجديدة للتصوير (html-to-image) ---
     function exportToImage() {
         const btn = document.querySelector('.btn-export');
         const originalText = btn.innerHTML;
@@ -626,34 +621,40 @@
         
         btn.innerHTML = '⏳ جاري الحفظ...';
         
+        // إخفاء الأزرار يدوياً لتنظيف الصورة
         controlsDiv.classList.add('hide-on-capture');
         document.querySelectorAll('.delete-btn').forEach(el => el.style.display = 'none');
         document.querySelectorAll('.delete-col-head').forEach(el => el.style.display = 'none');
         document.querySelectorAll('.delete-cell').forEach(el => el.style.display = 'none');
 
-        html2canvas(container, {
-            scale: 2,
-            backgroundColor: null,
-            logging: false,
-            useCORS: true
-        }).then(canvas => {
+        // استخدام مكتبة html-to-image
+        htmlToImage.toPng(container, {
+            quality: 1.0,
+            backgroundColor: '#ffffff', // ضمان خلفية بيضاء وليست شفافة
+            pixelRatio: 2 // دقة عالية
+        })
+        .then(function (dataUrl) {
             const link = document.createElement('a');
             link.download = 'SMAIC_Result_' + new Date().toLocaleDateString('en-GB').replace(/\//g, '-') + '.png';
-            link.href = canvas.toDataURL('image/png');
+            link.href = dataUrl;
             link.click();
             
+            // استعادة الأزرار
+            restoreUI();
+        })
+        .catch(function (error) {
+            console.error('oops, something went wrong!', error);
+            alert('حدث خطأ أثناء حفظ الصورة، يرجى المحاولة مرة أخرى.');
+            restoreUI();
+        });
+
+        function restoreUI() {
             btn.innerHTML = originalText;
             controlsDiv.classList.remove('hide-on-capture');
             document.querySelectorAll('.delete-btn').forEach(el => el.style.display = 'flex');
             document.querySelectorAll('.delete-col-head').forEach(el => el.style.display = 'table-cell');
             document.querySelectorAll('.delete-cell').forEach(el => el.style.display = 'table-cell');
-        }).catch(err => {
-            console.error(err);
-            alert('حدث خطأ أثناء حفظ الصورة');
-            btn.innerHTML = originalText;
-            controlsDiv.classList.remove('hide-on-capture');
-            document.querySelectorAll('.delete-btn').forEach(el => el.style.display = 'flex');
-        });
+        }
     }
 </script>
 
