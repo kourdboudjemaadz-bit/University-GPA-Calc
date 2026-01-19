@@ -49,7 +49,7 @@
             margin-top: 20px;
             margin-bottom: 40px;
             animation: slideIn 0.6s ease-out;
-            position: relative; /* مهم للتصوير */
+            position: relative;
         }
 
         @keyframes slideIn {
@@ -129,11 +129,12 @@
         .score-display {
             font-size: 3.8rem;
             font-weight: 800;
-            color: var(--primary);
+            /* تم تثبيت اللون هنا ليكون داكناً دائماً */
+            color: var(--text-main); 
             margin-top: -65px;
             position: relative;
             z-index: 10;
-            text-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+            text-shadow: 0 4px 12px rgba(255, 255, 255, 0.8); /* إضافة ظل أبيض خفيف لضمان التباين */
             line-height: 1;
         }
 
@@ -331,12 +332,8 @@
             border-top: 1px solid #e2e8f0;
         }
         
-        /* كلاس لإخفاء العناصر أثناء التصوير */
-        .hide-on-capture {
-            display: none !important;
-        }
+        .hide-on-capture { display: none !important; }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .container { margin: 0; border-radius: 0; min-height: 100vh; }
             header { padding: 30px 20px; }
@@ -393,8 +390,7 @@
                     <th class="col-action delete-col-head"></th>
                 </tr>
             </thead>
-            <tbody id="tableBody">
-                </tbody>
+            <tbody id="tableBody"></tbody>
         </table>
     </div>
 
@@ -404,9 +400,8 @@
 </div>
 
 <script>
-    const STORAGE_KEY = 'smaic_calc_v7_img_data';
+    const STORAGE_KEY = 'smaic_calc_v8_final';
     
-    // البيانات الافتراضية
     const defaultRow = {name: "", exam: null, td: null, coef: 1, mode: "mixed"};
     let subjects = [];
 
@@ -577,33 +572,37 @@
         const gaugeFill = document.getElementById('gaugeFill');
 
         scoreEl.innerText = gpa.toFixed(2);
+        
+        // هنا قمنا بتثبيت لون المعدل ليكون دائماً غامقاً
+        scoreEl.style.color = '#1e293b'; 
 
-        let color = '#ef4444';
+        let gaugeColor = '#ef4444'; // لون الدائرة
         let mention = 'مؤجل (Ajourné)';
         let bgColor = '#fef2f2';
 
         if (!hasData && gpa === 0) {
             mention = 'بانتظار إدخال النقاط...';
-            color = '#64748b';
+            gaugeColor = '#64748b'; // لون رمادي عند البداية
             bgColor = '#f8fafc';
         } else {
-            if (gpa >= 10) { mention = 'مقبول (Passable)'; color = '#f59e0b'; bgColor = '#fffbeb'; }
-            if (gpa >= 12) { mention = 'قريب من الجيد (Assez Bien)'; color = '#3b82f6'; bgColor = '#eff6ff'; }
-            if (gpa >= 14) { mention = 'جيد (Bien)'; color = '#10b981'; bgColor = '#ecfdf5'; }
-            if (gpa >= 16) { mention = 'ممتاز (Très Bien)'; color = '#059669'; bgColor = '#ecfdf5'; }
-            if (gpa < 10) { color = '#ef4444'; bgColor = '#fef2f2'; }
+            if (gpa >= 10) { mention = 'مقبول (Passable)'; gaugeColor = '#f59e0b'; bgColor = '#fffbeb'; }
+            if (gpa >= 12) { mention = 'قريب من الجيد (Assez Bien)'; gaugeColor = '#3b82f6'; bgColor = '#eff6ff'; }
+            if (gpa >= 14) { mention = 'جيد (Bien)'; gaugeColor = '#10b981'; bgColor = '#ecfdf5'; }
+            if (gpa >= 16) { mention = 'ممتاز (Très Bien)'; gaugeColor = '#059669'; bgColor = '#ecfdf5'; }
+            if (gpa < 10) { gaugeColor = '#ef4444'; bgColor = '#fef2f2'; }
         }
 
-        scoreEl.style.color = color;
+        // تطبيق اللون على الملاحظة والخلفية فقط، وليس على الرقم
         mentionEl.innerText = mention;
-        mentionEl.style.color = color;
+        mentionEl.style.color = gaugeColor;
         mentionEl.style.backgroundColor = bgColor;
 
         const percentage = Math.min(Math.max(gpa, 0), 20) / 20;
         const rotation = -180 + (percentage * 180);
         
+        // تطبيق اللون على الدائرة فقط
         gaugeFill.style.transform = `rotate(${rotation}deg)`;
-        gaugeFill.style.backgroundColor = color;
+        gaugeFill.style.backgroundColor = gaugeColor;
     }
 
     function saveToLocal() {
@@ -619,36 +618,30 @@
         }
     }
 
-    // --- دالة تصدير الصورة ---
     function exportToImage() {
         const btn = document.querySelector('.btn-export');
         const originalText = btn.innerHTML;
         const container = document.getElementById('captureArea');
         const controlsDiv = document.querySelector('.controls');
         
-        // 1. تغيير نص الزر
         btn.innerHTML = '⏳ جاري الحفظ...';
         
-        // 2. إخفاء أزرار التحكم (إضافة، تصفير، الخ) وعمود الحذف لجعل الصورة نظيفة
         controlsDiv.classList.add('hide-on-capture');
         document.querySelectorAll('.delete-btn').forEach(el => el.style.display = 'none');
         document.querySelectorAll('.delete-col-head').forEach(el => el.style.display = 'none');
         document.querySelectorAll('.delete-cell').forEach(el => el.style.display = 'none');
 
-        // 3. التقاط الصورة
         html2canvas(container, {
-            scale: 2, // دقة عالية
-            backgroundColor: null, // استخدام خلفية العنصر
+            scale: 2,
+            backgroundColor: null,
             logging: false,
             useCORS: true
         }).then(canvas => {
-            // إنشاء رابط تحميل
             const link = document.createElement('a');
             link.download = 'SMAIC_Result_' + new Date().toLocaleDateString('en-GB').replace(/\//g, '-') + '.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
             
-            // 4. استعادة الحالة الأصلية
             btn.innerHTML = originalText;
             controlsDiv.classList.remove('hide-on-capture');
             document.querySelectorAll('.delete-btn').forEach(el => el.style.display = 'flex');
