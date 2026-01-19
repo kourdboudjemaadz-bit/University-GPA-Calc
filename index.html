@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-06Q1R1WM5K');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حاسبة المعدل - SMAIC</title>
@@ -330,7 +338,6 @@
             border-top: 1px solid #e2e8f0;
         }
         
-        /* هذا الكلاس سيستخدم لإخفاء العناصر قبل التصوير */
         .hide-on-capture { display: none !important; }
 
         @media (max-width: 768px) {
@@ -612,7 +619,6 @@
         }
     }
 
-    // --- الوظيفة الجديدة للتصوير (html-to-image) ---
     function exportToImage() {
         const btn = document.querySelector('.btn-export');
         const originalText = btn.innerHTML;
@@ -621,17 +627,15 @@
         
         btn.innerHTML = '⏳ جاري الحفظ...';
         
-        // إخفاء الأزرار يدوياً لتنظيف الصورة
         controlsDiv.classList.add('hide-on-capture');
         document.querySelectorAll('.delete-btn').forEach(el => el.style.display = 'none');
         document.querySelectorAll('.delete-col-head').forEach(el => el.style.display = 'none');
         document.querySelectorAll('.delete-cell').forEach(el => el.style.display = 'none');
 
-        // استخدام مكتبة html-to-image
         htmlToImage.toPng(container, {
             quality: 1.0,
-            backgroundColor: '#ffffff', // ضمان خلفية بيضاء وليست شفافة
-            pixelRatio: 2 // دقة عالية
+            backgroundColor: '#ffffff',
+            pixelRatio: 2
         })
         .then(function (dataUrl) {
             const link = document.createElement('a');
@@ -639,7 +643,6 @@
             link.href = dataUrl;
             link.click();
             
-            // استعادة الأزرار
             restoreUI();
         })
         .catch(function (error) {
