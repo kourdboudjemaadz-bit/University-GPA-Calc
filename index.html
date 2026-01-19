@@ -4,223 +4,310 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حاسبة المعدل - SMAIC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --primary: #2563eb;
-            --success: #16a34a;
-            --warning: #ca8a04;
-            --danger: #dc2626;
-            --bg: #f3f4f6;
-            --card: #ffffff;
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --accent: #8b5cf6;
+            --bg-gradient: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-main: #1e293b;
+            --text-light: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-gradient);
             margin: 0;
             padding: 20px;
-            color: #1f2937;
+            min-height: 100vh;
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
         }
 
         .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: var(--card);
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            margin-top: 20px;
+            margin-bottom: 40px;
         }
 
         header {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--accent));
             color: white;
-            padding: 30px 20px;
+            padding: 40px 20px;
             text-align: center;
-        }
-
-        header h1 { 
-            margin: 0; 
-            font-size: 1.6rem; 
-            font-weight: 800;
-            line-height: 1.4;
-        }
-        
-        header h2 {
-            margin: 10px 0 0;
-            font-size: 1.1rem;
-            font-weight: normal;
-            opacity: 0.95;
-        }
-
-        header p { 
-            margin: 5px 0 0; 
-            opacity: 0.8; 
-            font-size: 0.9rem; 
-        }
-
-        .dashboard {
-            padding: 30px 20px;
-            text-align: center;
-            background: #f8fafc;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        /* Gauge Styles */
-        .gauge-container {
-            width: 220px;
-            height: 110px;
-            margin: 0 auto 15px;
             position: relative;
             overflow: hidden;
         }
 
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -50%;
+            right: -10%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header h2 {
+            margin: 10px 0 0;
+            font-size: 1.1rem;
+            font-weight: 400;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .dashboard {
+            padding: 30px;
+            text-align: center;
+            background: #fff;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .gauge-wrapper {
+            position: relative;
+            width: 240px;
+            height: 120px;
+            margin: 0 auto;
+        }
+
         .gauge-bg {
-            width: 220px;
-            height: 110px;
+            width: 240px;
+            height: 120px;
             background: #e2e8f0;
-            border-radius: 110px 110px 0 0;
+            border-radius: 120px 120px 0 0;
         }
 
         .gauge-fill {
-            width: 220px;
-            height: 110px;
+            width: 240px;
+            height: 120px;
             background: var(--success);
-            border-radius: 110px 110px 0 0;
+            border-radius: 120px 120px 0 0;
             position: absolute;
             top: 0;
             left: 0;
             transform-origin: center bottom;
             transform: rotate(-180deg);
-            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.5s;
+            transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.5s;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
         }
 
         .score-display {
-            font-size: 3rem;
+            font-size: 3.5rem;
             font-weight: 800;
             color: var(--primary);
-            margin-top: -50px;
+            margin-top: -60px;
             position: relative;
             z-index: 10;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
         }
 
         .mention {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 600;
-            margin-top: 10px;
+            margin-top: 5px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            background: #f8fafc;
         }
 
-        /* Controls */
         .controls {
-            padding: 15px 20px;
+            padding: 20px 30px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #fff;
-            border-bottom: 1px solid #f1f5f9;
+            gap: 15px;
+            background: #f8fafc;
+            border-bottom: 1px dashed #cbd5e1;
         }
 
         button {
+            font-family: 'Cairo', sans-serif;
             border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 12px 24px;
+            border-radius: 12px;
             cursor: pointer;
-            font-weight: bold;
-            font-family: inherit;
-            transition: 0.2s;
-            font-size: 0.9rem;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .btn-add { background: var(--primary); color: white; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3); }
-        .btn-add:hover { background: #1d4ed8; transform: translateY(-1px); }
-        
-        .btn-reset { background: white; color: var(--danger); border: 1px solid #fecaca; }
-        .btn-reset:hover { background: #fee2e2; }
+        .btn-add {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+            flex: 1;
+            justify-content: center;
+        }
 
-        /* Table */
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(79, 70, 229, 0.4);
+        }
+        
+        .btn-reset {
+            background: white;
+            color: var(--danger);
+            border: 1px solid #fecaca;
+        }
+
+        .btn-reset:hover {
+            background: #fee2e2;
+        }
+
         .table-wrapper {
+            padding: 20px 30px;
             overflow-x: auto;
-            padding-bottom: 20px;
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
-            min-width: 650px;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+            min-width: 800px;
         }
 
-        thead {
-            background: #f8fafc;
+        thead th {
+            text-align: right;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            padding: 0 15px 10px;
             border-bottom: 2px solid #e2e8f0;
         }
 
-        th {
-            padding: 15px;
-            text-align: right;
-            font-size: 0.9rem;
-            color: #475569;
-            font-weight: 700;
+        tbody tr {
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            transition: transform 0.2s;
+        }
+
+        tbody tr:hover {
+            transform: scale(1.01);
         }
 
         td {
-            padding: 10px 15px;
+            padding: 15px;
+            border-top: 1px solid #f1f5f9;
             border-bottom: 1px solid #f1f5f9;
         }
 
-        tr:last-child td { border-bottom: none; }
+        td:first-child {
+            border-right: 1px solid #f1f5f9;
+            border-left: 4px solid var(--primary);
+            border-radius: 0 12px 12px 0;
+        }
+        
+        td:last-child {
+            border-left: 1px solid #f1f5f9;
+            border-radius: 12px 0 0 12px;
+        }
 
         input, select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1rem;
+            color: var(--text-main);
+            background: #f8fafc;
+            transition: all 0.3s;
             box-sizing: border-box;
-            font-size: 0.95rem;
-            transition: border-color 0.2s;
-            background: #fff;
         }
 
         input:focus, select:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        /* تنسيق الخانات المغلقة */
+        input:disabled {
+            background-color: #e2e8f0;
+            color: #94a3b8;
+            border-color: #cbd5e1;
+            cursor: not-allowed;
+            text-decoration: line-through;
         }
 
         .delete-btn {
             background: #fee2e2;
             color: var(--danger);
-            width: 32px;
-            height: 32px;
-            padding: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
-            font-size: 1.2rem;
-            transition: 0.2s;
+            font-size: 1.4rem;
+            padding: 0;
+            margin: 0 auto;
         }
-        
+
         .delete-btn:hover {
             background: var(--danger);
             color: white;
+            transform: rotate(90deg);
         }
 
         footer {
             text-align: center;
             padding: 20px;
             background: #f8fafc;
-            color: #64748b;
-            font-size: 0.85rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
             border-top: 1px solid #e2e8f0;
         }
 
         @media (max-width: 600px) {
-            .container { border-radius: 0; box-shadow: none; margin: -20px; width: auto; }
-            body { padding: 20px; }
-            th, td { padding: 8px; }
-            input, select { font-size: 0.85rem; padding: 8px; }
+            .container { margin: 0; border-radius: 0; min-height: 100vh; }
+            header { padding: 30px 20px; }
+            .controls { padding: 15px; flex-direction: column; }
+            .table-wrapper { padding: 10px; }
+            td { padding: 10px 5px; }
+            input, select { font-size: 0.9rem; padding: 8px; }
+            .score-display { font-size: 2.8rem; }
         }
     </style>
 </head>
@@ -228,31 +315,35 @@
 
 <div class="container">
     <header>
-        <h1>نادي علوم المادة للذكاء الإصطناعي <br> SMAIC</h1>
-        <h2>يرحب بكم ويتمنى لكم التوفيق</h2>
+        <h1>نادي علوم المادة للذكاء الاصطناعي <br> SMAIC</h1>
+        <h2>يرحب بكم ويتمنى لكم كل التوفيق</h2>
     </header>
 
     <div class="dashboard">
-        <div class="gauge-container">
+        <div class="gauge-wrapper">
             <div class="gauge-bg"></div>
             <div class="gauge-fill" id="gaugeFill"></div>
         </div>
         <div class="score-display" id="finalScore">0.00</div>
-        <div class="mention" id="mentionText">---</div>
+        <div class="mention" id="mentionText">ابدأ بإدخال النقاط</div>
     </div>
 
     <div class="controls">
-        <button class="btn-add" onclick="addRow()">+ إضافة مادة</button>
-        <button class="btn-reset" onclick="resetData()">مسح الكل</button>
+        <button class="btn-add" onclick="addRow()">
+            <span>+</span> إضافة مادة جديدة
+        </button>
+        <button class="btn-reset" onclick="resetData()">
+            تصفير الجدول
+        </button>
     </div>
 
     <div class="table-wrapper">
         <table id="gradeTable">
             <thead>
                 <tr>
-                    <th style="width: 30%;">المادة</th>
-                    <th style="width: 15%;">الامتحان /20</th>
-                    <th style="width: 15%;">TD/TP /20</th>
+                    <th style="width: 30%;">اسم المادة</th>
+                    <th style="width: 15%;">الامتحان</th>
+                    <th style="width: 15%;">TD/TP</th>
                     <th style="width: 10%;">المعامل</th>
                     <th style="width: 25%;">طريقة الحساب</th>
                     <th style="width: 5%;"></th>
@@ -264,16 +355,16 @@
     </div>
 
     <footer>
-        SMAIC &copy; 2026
+        تم تطويره بواسطة SMAIC &copy; 2026 | جامعة قاصدي مرباح ورقلة
     </footer>
 </div>
 
 <script>
-    const STORAGE_KEY = 'smaic_calc_v1';
+    const STORAGE_KEY = 'smaic_calc_v4_final';
     
-    // سطر واحد فارغ كبداية
+    // سطر فارغ للبداية
     const defaultData = [
-        {name: "", exam: 0, td: 0, coef: 1, mode: "mixed"}
+        {name: "", exam: null, td: null, coef: 1, mode: "mixed"}
     ];
 
     let subjects = [];
@@ -295,15 +386,37 @@
 
         subjects.forEach((sub, index) => {
             const row = document.createElement('tr');
+            
+            const examVal = sub.exam === null ? '' : sub.exam;
+            const tdVal = sub.td === null ? '' : sub.td;
+
+            // تحديد ما إذا كانت الخانات مغلقة بناءً على الوضع
+            const examDisabled = sub.mode === 'td_100';
+            const tdDisabled = sub.mode === 'exam_100';
+
             row.innerHTML = `
-                <td><input type="text" value="${sub.name}" placeholder="اكتب اسم المادة..." oninput="updateData(${index}, 'name', this.value)"></td>
-                <td><input type="number" step="0.25" min="0" max="20" placeholder="0" value="${sub.exam || ''}" oninput="updateData(${index}, 'exam', this.value)"></td>
-                <td><input type="number" step="0.25" min="0" max="20" placeholder="0" value="${sub.td || ''}" oninput="updateData(${index}, 'td', this.value)"></td>
+                <td><input type="text" value="${sub.name}" placeholder="اسم المادة..." oninput="updateData(${index}, 'name', this.value)"></td>
+                
+                <td>
+                    <input type="number" step="0.25" min="0" max="20" placeholder="${examDisabled ? '-' : '0'}" 
+                    value="${examVal}" oninput="updateData(${index}, 'exam', this.value)" 
+                    ${examDisabled ? 'disabled' : ''}>
+                </td>
+                
+                <td>
+                    <input type="number" step="0.25" min="0" max="20" placeholder="${tdDisabled ? '-' : '0'}" 
+                    value="${tdVal}" oninput="updateData(${index}, 'td', this.value)"
+                    ${tdDisabled ? 'disabled' : ''}>
+                </td>
+                
                 <td><input type="number" step="1" min="1" max="20" value="${sub.coef}" oninput="updateData(${index}, 'coef', this.value)"></td>
+                
                 <td>
                     <select onchange="updateData(${index}, 'mode', this.value)">
-                        <option value="mixed" ${sub.mode === 'mixed' ? 'selected' : ''}>(2*Ex+TD)/3</option>
-                        <option value="avg" ${sub.mode === 'avg' ? 'selected' : ''}>(Ex+TD)/2</option>
+                        <option value="mixed" ${sub.mode === 'mixed' ? 'selected' : ''}>امتحان (67%) + TD (33%)</option>
+                        <option value="avg" ${sub.mode === 'avg' ? 'selected' : ''}>امتحان (50%) + TD (50%)</option>
+                        <option value="exam_100" ${sub.mode === 'exam_100' ? 'selected' : ''}>إمتحان فقط (100%)</option>
+                        <option value="td_100" ${sub.mode === 'td_100' ? 'selected' : ''}>TD/TP فقط (100%)</option>
                     </select>
                 </td>
                 <td><button class="delete-btn" onclick="deleteRow(${index})" title="حذف">&times;</button></td>
@@ -313,20 +426,18 @@
     }
 
     function addRow() {
-        subjects.push({name: "", exam: 0, td: 0, coef: 1, mode: "mixed"});
+        subjects.push({name: "", exam: null, td: null, coef: 1, mode: "mixed"});
         renderTable();
-        calculate();
         setTimeout(() => {
             const tableContainer = document.querySelector('.table-wrapper');
-            tableContainer.scrollTop = tableContainer.scrollHeight;
+            tableContainer.scrollTo({ top: tableContainer.scrollHeight, behavior: 'smooth' });
         }, 50);
     }
 
     function deleteRow(index) {
         subjects.splice(index, 1);
         if(subjects.length === 0) {
-             // إبقاء سطر واحد على الأقل دائماً
-             subjects.push({name: "", exam: 0, td: 0, coef: 1, mode: "mixed"});
+             subjects.push({name: "", exam: null, td: null, coef: 1, mode: "mixed"});
         }
         renderTable();
         calculate();
@@ -334,14 +445,21 @@
     }
 
     function updateData(index, field, value) {
-        if (field === 'name' || field === 'mode') {
-            subjects[index][field] = value;
+        if (field === 'mode') {
+            subjects[index].mode = value;
+            // إعادة رسم الجدول لغلق/فتح الخانات المناسبة
+            renderTable();
+        } else if (field === 'name') {
+            subjects[index].name = value;
         } else {
-            let val = parseFloat(value);
-            if (isNaN(val)) val = 0;
-            if ((field === 'exam' || field === 'td') && val > 20) val = 20; 
-            if ((field === 'exam' || field === 'td') && val < 0) val = 0;
-            subjects[index][field] = val;
+            if (value === '') {
+                subjects[index][field] = null;
+            } else {
+                let val = parseFloat(value);
+                if ((field === 'exam' || field === 'td') && val > 20) val = 20; 
+                if ((field === 'exam' || field === 'td') && val < 0) val = 0;
+                subjects[index][field] = val;
+            }
         }
         calculate();
         saveToLocal();
@@ -350,48 +468,71 @@
     function calculate() {
         let totalScore = 0;
         let totalCoef = 0;
-        let hasData = false;
+        let hasValidGrades = false;
 
         subjects.forEach(sub => {
-            if(sub.coef > 0) {
-                let avg = 0;
-                // فقط نحسب إذا كان هناك علامات مدخلة لتجنب الأصفار المزعجة في البداية
-                // لكن سنحسب الصفر كقيمة عادية
-                if (sub.mode === 'mixed') {
-                    avg = (sub.exam * 2 + sub.td) / 3;
-                } else {
-                    avg = (sub.exam + sub.td) / 2;
-                }
-                totalScore += avg * sub.coef;
-                totalCoef += sub.coef;
-                hasData = true;
+            let exam = sub.exam === null ? 0 : sub.exam;
+            let td = sub.td === null ? 0 : sub.td;
+            
+            // التحقق من وجود مدخلات
+            if (sub.mode === 'exam_100' && sub.exam !== null) hasValidGrades = true;
+            else if (sub.mode === 'td_100' && sub.td !== null) hasValidGrades = true;
+            else if ((sub.mode === 'mixed' || sub.mode === 'avg') && (sub.exam !== null || sub.td !== null)) hasValidGrades = true;
+
+            let avg = 0;
+            switch(sub.mode) {
+                case 'mixed':
+                    avg = (exam * 2 + td) / 3;
+                    break;
+                case 'avg':
+                    avg = (exam + td) / 2;
+                    break;
+                case 'exam_100':
+                    avg = exam;
+                    break;
+                case 'td_100':
+                    avg = td;
+                    break;
             }
+            
+            totalScore += avg * sub.coef;
+            totalCoef += sub.coef;
         });
 
-        const finalGPA = (hasData && totalCoef > 0) ? (totalScore / totalCoef) : 0;
-        updateDisplay(finalGPA);
+        const finalGPA = (totalCoef > 0) ? (totalScore / totalCoef) : 0;
+        updateDisplay(finalGPA, hasValidGrades);
     }
 
-    function updateDisplay(gpa) {
+    function updateDisplay(gpa, hasData) {
         const scoreEl = document.getElementById('finalScore');
         const mentionEl = document.getElementById('mentionText');
         const gaugeFill = document.getElementById('gaugeFill');
 
         scoreEl.innerText = gpa.toFixed(2);
 
-        let color = '#dc2626'; 
+        let color = '#ef4444';
         let mention = 'راسب (Ajourné)';
 
-        if (gpa >= 10) { mention = 'مقبول (Passable)'; color = '#ca8a04'; } 
-        if (gpa >= 12) { mention = 'قريب من الجيد (Assez Bien)'; color = '#0ea5e9'; } 
-        if (gpa >= 14) { mention = 'جيد (Bien)'; color = '#16a34a'; } 
-        if (gpa >= 16) { mention = 'ممتاز (Très Bien)'; color = '#15803d'; } 
-
-        if (gpa < 10) color = '#dc2626';
+        if (!hasData && gpa === 0) {
+            mention = 'أدخل العلامات للبدء';
+            color = '#64748b';
+        } else {
+            if (gpa >= 10) { mention = 'مقبول (Passable)'; color = '#f59e0b'; }
+            if (gpa >= 12) { mention = 'قريب من الجيد (Assez Bien)'; color = '#0ea5e9'; }
+            if (gpa >= 14) { mention = 'جيد (Bien)'; color = '#10b981'; }
+            if (gpa >= 16) { mention = 'ممتاز (Très Bien)'; color = '#059669'; }
+            if (gpa < 10) color = '#ef4444';
+        }
 
         scoreEl.style.color = color;
         mentionEl.innerText = mention;
-        mentionEl.style.color = color;
+        if(hasData || gpa > 0) {
+            mentionEl.style.color = color;
+            mentionEl.style.backgroundColor = color + '15';
+        } else {
+            mentionEl.style.color = '#64748b';
+            mentionEl.style.backgroundColor = '#f1f5f9';
+        }
 
         const percentage = Math.min(Math.max(gpa, 0), 20) / 20;
         const rotation = -180 + (percentage * 180);
