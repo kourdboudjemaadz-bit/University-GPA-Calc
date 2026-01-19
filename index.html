@@ -4,17 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حاسبة المعدل - SMAIC</title>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <style>
         :root {
             --primary: #4f46e5;
             --primary-dark: #4338ca;
             --accent: #8b5cf6;
-            --bg-gradient: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
-            --card-bg: rgba(255, 255, 255, 0.95);
+            --bg-gradient: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+            --card-bg: rgba(255, 255, 255, 0.98);
             --text-main: #1e293b;
             --text-light: #64748b;
             --success: #10b981;
@@ -36,15 +39,22 @@
 
         .container {
             width: 100%;
-            max-width: 900px;
+            max-width: 950px;
             background: var(--card-bg);
             border-radius: 24px;
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
             overflow: hidden;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
             margin-top: 20px;
             margin-bottom: 40px;
+            animation: slideIn 0.6s ease-out;
+            position: relative; /* مهم للتصوير */
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         header {
@@ -56,43 +66,29 @@
             overflow: hidden;
         }
 
-        header::before {
+        header::before, header::after {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -10%;
-            width: 300px;
-            height: 300px;
             background: rgba(255,255,255,0.1);
             border-radius: 50%;
         }
-        header::after {
-            content: '';
-            position: absolute;
-            bottom: -50%;
-            right: -10%;
-            width: 200px;
-            height: 200px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-        }
+        header::before { top: -50%; left: -10%; width: 300px; height: 300px; }
+        header::after { bottom: -50%; right: -10%; width: 200px; height: 200px; }
 
         header h1 {
             margin: 0;
             font-size: 1.8rem;
             font-weight: 800;
             letter-spacing: -0.5px;
-            position: relative;
-            z-index: 1;
+            position: relative; z-index: 1;
         }
 
         header h2 {
-            margin: 10px 0 0;
+            margin: 8px 0 0;
             font-size: 1.1rem;
             font-weight: 400;
-            opacity: 0.9;
-            position: relative;
-            z-index: 1;
+            opacity: 0.95;
+            position: relative; z-index: 1;
         }
 
         .dashboard {
@@ -107,6 +103,7 @@
             width: 240px;
             height: 120px;
             margin: 0 auto;
+            overflow: hidden;
         }
 
         .gauge-bg {
@@ -126,33 +123,35 @@
             left: 0;
             transform-origin: center bottom;
             transform: rotate(-180deg);
-            transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.5s;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.5s;
         }
 
         .score-display {
-            font-size: 3.5rem;
+            font-size: 3.8rem;
             font-weight: 800;
             color: var(--primary);
-            margin-top: -60px;
+            margin-top: -65px;
             position: relative;
             z-index: 10;
-            text-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+            text-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+            line-height: 1;
         }
 
         .mention {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-top: 5px;
-            padding: 5px 15px;
-            border-radius: 20px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-top: 10px;
+            padding: 8px 20px;
+            border-radius: 50px;
             display: inline-block;
             background: #f8fafc;
+            transition: all 0.3s ease;
         }
 
         .controls {
             padding: 20px 30px;
             display: flex;
+            flex-wrap: wrap;
             gap: 15px;
             background: #f8fafc;
             border-bottom: 1px dashed #cbd5e1;
@@ -166,29 +165,45 @@
             cursor: pointer;
             font-weight: 700;
             font-size: 0.95rem;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
         }
 
         .btn-add {
             background: linear-gradient(135deg, var(--primary), var(--accent));
             color: white;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-            flex: 1;
-            justify-content: center;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+            flex: 2;
+            min-width: 150px;
         }
 
         .btn-add:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(79, 70, 229, 0.4);
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+        }
+
+        .btn-export {
+            background: #1e293b;
+            color: white;
+            flex: 1;
+            min-width: 140px;
+            box-shadow: 0 4px 12px rgba(30, 41, 59, 0.25);
+        }
+
+        .btn-export:hover {
+            background: #0f172a;
+            transform: translateY(-2px);
         }
         
         .btn-reset {
             background: white;
             color: var(--danger);
             border: 1px solid #fecaca;
+            flex: 1;
+            min-width: 120px;
         }
 
         .btn-reset:hover {
@@ -196,39 +211,48 @@
         }
 
         .table-wrapper {
-            padding: 20px 30px;
+            padding: 10px 30px 30px;
             overflow-x: auto;
         }
 
         table {
             width: 100%;
             border-collapse: separate;
-            border-spacing: 0 10px;
-            min-width: 800px;
+            border-spacing: 0 12px;
+            min-width: 750px;
         }
 
         thead th {
             text-align: right;
             color: var(--text-light);
             font-size: 0.9rem;
+            font-weight: 600;
             padding: 0 15px 10px;
             border-bottom: 2px solid #e2e8f0;
         }
 
         tbody tr {
             background: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-            transition: transform 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            transition: transform 0.2s, box-shadow 0.2s;
+            animation: fadeInRow 0.4s ease-out;
+        }
+
+        @keyframes fadeInRow {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         tbody tr:hover {
-            transform: scale(1.01);
+            transform: scale(1.005);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
         }
 
         td {
-            padding: 15px;
+            padding: 12px;
             border-top: 1px solid #f1f5f9;
             border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
         }
 
         td:first-child {
@@ -248,10 +272,10 @@
             border: 2px solid #e2e8f0;
             border-radius: 10px;
             font-family: 'Cairo', sans-serif;
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: var(--text-main);
             background: #f8fafc;
-            transition: all 0.3s;
+            transition: all 0.2s;
             box-sizing: border-box;
         }
 
@@ -262,33 +286,40 @@
             box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
         }
 
-        /* تنسيق الخانات المغلقة */
         input:disabled {
-            background-color: #e2e8f0;
+            background-color: #f1f5f9;
             color: #94a3b8;
-            border-color: #cbd5e1;
+            border-color: #f1f5f9;
             cursor: not-allowed;
-            text-decoration: line-through;
         }
+
+        /* تنسيق الأعمدة */
+        .col-name { width: 30%; }
+        .col-grade { width: 15%; }
+        .col-coef { width: 10%; }
+        .col-mode { width: 25%; }
+        .col-action { width: 5%; text-align: center; }
 
         .delete-btn {
             background: #fee2e2;
             color: var(--danger);
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             padding: 0;
             margin: 0 auto;
+            border: none;
+            transition: all 0.2s;
         }
 
         .delete-btn:hover {
             background: var(--danger);
             color: white;
-            transform: rotate(90deg);
+            transform: rotate(90deg) scale(1.1);
         }
 
         footer {
@@ -296,27 +327,35 @@
             padding: 20px;
             background: #f8fafc;
             color: var(--text-light);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             border-top: 1px solid #e2e8f0;
         }
+        
+        /* كلاس لإخفاء العناصر أثناء التصوير */
+        .hide-on-capture {
+            display: none !important;
+        }
 
-        @media (max-width: 600px) {
+        /* Responsive */
+        @media (max-width: 768px) {
             .container { margin: 0; border-radius: 0; min-height: 100vh; }
             header { padding: 30px 20px; }
-            .controls { padding: 15px; flex-direction: column; }
-            .table-wrapper { padding: 10px; }
-            td { padding: 10px 5px; }
+            header h1 { font-size: 1.5rem; }
+            .score-display { font-size: 3rem; }
+            .controls { padding: 15px; }
+            .btn-add, .btn-export, .btn-reset { width: 100%; flex: 100%; }
+            .table-wrapper { padding: 10px 15px; }
+            table { min-width: 650px; } 
             input, select { font-size: 0.9rem; padding: 8px; }
-            .score-display { font-size: 2.8rem; }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="container" id="captureArea">
     <header>
         <h1>نادي علوم المادة للذكاء الاصطناعي <br> SMAIC</h1>
-        <h2>يرحب بكم ويتمنى لكم كل التوفيق</h2>
+        <h2>حاسبة المعدل الفصلي - 2026</h2>
     </header>
 
     <div class="dashboard">
@@ -328,12 +367,17 @@
         <div class="mention" id="mentionText">ابدأ بإدخال النقاط</div>
     </div>
 
-    <div class="controls">
-        <button class="btn-add" onclick="addRow()">
-            <span>+</span> إضافة مادة جديدة
+    <div class="controls" data-html2canvas-ignore="false">
+        <button class="btn-add" onclick="addRow(true)">
+            <span>+</span> إضافة مادة
         </button>
+        
+        <button class="btn-export" onclick="exportToImage()">
+            📷 حفظ الصورة
+        </button>
+
         <button class="btn-reset" onclick="resetData()">
-            تصفير الجدول
+            تصفير
         </button>
     </div>
 
@@ -341,12 +385,12 @@
         <table id="gradeTable">
             <thead>
                 <tr>
-                    <th style="width: 30%;">اسم المادة</th>
-                    <th style="width: 15%;">الامتحان</th>
-                    <th style="width: 15%;">TD/TP</th>
-                    <th style="width: 10%;">المعامل</th>
-                    <th style="width: 25%;">طريقة الحساب</th>
-                    <th style="width: 5%;"></th>
+                    <th class="col-name">اسم المادة</th>
+                    <th class="col-grade">الامتحان</th>
+                    <th class="col-grade">TD/TP</th>
+                    <th class="col-coef">المعامل</th>
+                    <th class="col-mode">طريقة الحساب</th>
+                    <th class="col-action delete-col-head"></th>
                 </tr>
             </thead>
             <tbody id="tableBody">
@@ -355,32 +399,34 @@
     </div>
 
     <footer>
-        تم تطويره بواسطة SMAIC &copy; 2026 | جامعة قاصدي مرباح ورقلة
+        تم التطوير بواسطة SMAIC &copy; 2026 | جامعة قاصدي مرباح ورقلة
     </footer>
 </div>
 
 <script>
-    const STORAGE_KEY = 'smaic_calc_v4_final';
+    const STORAGE_KEY = 'smaic_calc_v7_img_data';
     
-    // سطر فارغ للبداية
-    const defaultData = [
-        {name: "", exam: null, td: null, coef: 1, mode: "mixed"}
-    ];
-
+    // البيانات الافتراضية
+    const defaultRow = {name: "", exam: null, td: null, coef: 1, mode: "mixed"};
     let subjects = [];
 
     window.onload = function() {
         const savedData = localStorage.getItem(STORAGE_KEY);
         if (savedData) {
-            subjects = JSON.parse(savedData);
+            try {
+                subjects = JSON.parse(savedData);
+                if (!Array.isArray(subjects) || subjects.length === 0) throw new Error();
+            } catch (e) {
+                subjects = [JSON.parse(JSON.stringify(defaultRow))];
+            }
         } else {
-            subjects = JSON.parse(JSON.stringify(defaultData));
+            subjects = [JSON.parse(JSON.stringify(defaultRow))];
         }
         renderTable();
         calculate();
     };
 
-    function renderTable() {
+    function renderTable(focusLast = false) {
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
 
@@ -390,54 +436,74 @@
             const examVal = sub.exam === null ? '' : sub.exam;
             const tdVal = sub.td === null ? '' : sub.td;
 
-            // تحديد ما إذا كانت الخانات مغلقة بناءً على الوضع
             const examDisabled = sub.mode === 'td_100';
             const tdDisabled = sub.mode === 'exam_100';
 
             row.innerHTML = `
-                <td><input type="text" value="${sub.name}" placeholder="اسم المادة..." oninput="updateData(${index}, 'name', this.value)"></td>
+                <td>
+                    <input type="text" id="name-${index}" value="${sub.name}" placeholder="اسم المادة..." 
+                    oninput="updateData(${index}, 'name', this.value)">
+                </td>
                 
                 <td>
                     <input type="number" step="0.25" min="0" max="20" placeholder="${examDisabled ? '-' : '0'}" 
                     value="${examVal}" oninput="updateData(${index}, 'exam', this.value)" 
+                    onblur="validateRange(this)"
                     ${examDisabled ? 'disabled' : ''}>
                 </td>
                 
                 <td>
                     <input type="number" step="0.25" min="0" max="20" placeholder="${tdDisabled ? '-' : '0'}" 
                     value="${tdVal}" oninput="updateData(${index}, 'td', this.value)"
+                    onblur="validateRange(this)"
                     ${tdDisabled ? 'disabled' : ''}>
                 </td>
                 
-                <td><input type="number" step="1" min="1" max="20" value="${sub.coef}" oninput="updateData(${index}, 'coef', this.value)"></td>
+                <td>
+                    <input type="number" step="1" min="1" max="20" value="${sub.coef}" 
+                    oninput="updateData(${index}, 'coef', this.value)"
+                    onblur="validateRange(this, 1)">
+                </td>
                 
                 <td>
                     <select onchange="updateData(${index}, 'mode', this.value)">
-                        <option value="mixed" ${sub.mode === 'mixed' ? 'selected' : ''}>امتحان (67%) + TD (33%)</option>
-                        <option value="avg" ${sub.mode === 'avg' ? 'selected' : ''}>امتحان (50%) + TD (50%)</option>
-                        <option value="exam_100" ${sub.mode === 'exam_100' ? 'selected' : ''}>إمتحان فقط (100%)</option>
-                        <option value="td_100" ${sub.mode === 'td_100' ? 'selected' : ''}>TD/TP فقط (100%)</option>
+                        <option value="mixed" ${sub.mode === 'mixed' ? 'selected' : ''}>67% إمتحان + 33% TD</option>
+                        <option value="avg" ${sub.mode === 'avg' ? 'selected' : ''}>50% إمتحان + 50% TD</option>
+                        <option value="exam_100" ${sub.mode === 'exam_100' ? 'selected' : ''}>100% إمتحان</option>
+                        <option value="td_100" ${sub.mode === 'td_100' ? 'selected' : ''}>100% TD/TP</option>
                     </select>
                 </td>
-                <td><button class="delete-btn" onclick="deleteRow(${index})" title="حذف">&times;</button></td>
+                <td class="delete-cell"><button class="delete-btn" onclick="deleteRow(${index})" title="حذف المادة">&times;</button></td>
             `;
             tbody.appendChild(row);
         });
+
+        if (focusLast && subjects.length > 0) {
+            const lastInput = document.getElementById(`name-${subjects.length - 1}`);
+            if(lastInput) lastInput.focus();
+        }
     }
 
-    function addRow() {
-        subjects.push({name: "", exam: null, td: null, coef: 1, mode: "mixed"});
-        renderTable();
+    function validateRange(input, minVal = 0) {
+        let val = parseFloat(input.value);
+        if (isNaN(val)) return;
+        if (val > 20) input.value = 20;
+        if (val < minVal) input.value = minVal;
+    }
+
+    function addRow(focus = false) {
+        subjects.push(JSON.parse(JSON.stringify(defaultRow)));
+        renderTable(focus);
         setTimeout(() => {
-            const tableContainer = document.querySelector('.table-wrapper');
-            tableContainer.scrollTo({ top: tableContainer.scrollHeight, behavior: 'smooth' });
+            const tableWrapper = document.querySelector('.table-wrapper');
+            tableWrapper.scrollTo({ top: tableWrapper.scrollHeight, behavior: 'smooth' });
         }, 50);
     }
 
     function deleteRow(index) {
         subjects.splice(index, 1);
         if(subjects.length === 0) {
-             subjects.push({name: "", exam: null, td: null, coef: 1, mode: "mixed"});
+             subjects.push(JSON.parse(JSON.stringify(defaultRow)));
         }
         renderTable();
         calculate();
@@ -447,7 +513,8 @@
     function updateData(index, field, value) {
         if (field === 'mode') {
             subjects[index].mode = value;
-            // إعادة رسم الجدول لغلق/فتح الخانات المناسبة
+            if(value === 'exam_100') subjects[index].td = null;
+            if(value === 'td_100') subjects[index].exam = null;
             renderTable();
         } else if (field === 'name') {
             subjects[index].name = value;
@@ -456,8 +523,10 @@
                 subjects[index][field] = null;
             } else {
                 let val = parseFloat(value);
-                if ((field === 'exam' || field === 'td') && val > 20) val = 20; 
-                if ((field === 'exam' || field === 'td') && val < 0) val = 0;
+                if (field !== 'coef') {
+                    if (val > 20) val = 20; 
+                    if (val < 0) val = 0;
+                }
                 subjects[index][field] = val;
             }
         }
@@ -474,7 +543,6 @@
             let exam = sub.exam === null ? 0 : sub.exam;
             let td = sub.td === null ? 0 : sub.td;
             
-            // التحقق من وجود مدخلات
             if (sub.mode === 'exam_100' && sub.exam !== null) hasValidGrades = true;
             else if (sub.mode === 'td_100' && sub.td !== null) hasValidGrades = true;
             else if ((sub.mode === 'mixed' || sub.mode === 'avg') && (sub.exam !== null || sub.td !== null)) hasValidGrades = true;
@@ -496,7 +564,7 @@
             }
             
             totalScore += avg * sub.coef;
-            totalCoef += sub.coef;
+            totalCoef += parseFloat(sub.coef) || 0;
         });
 
         const finalGPA = (totalCoef > 0) ? (totalScore / totalCoef) : 0;
@@ -511,28 +579,25 @@
         scoreEl.innerText = gpa.toFixed(2);
 
         let color = '#ef4444';
-        let mention = 'راسب (Ajourné)';
+        let mention = 'مؤجل (Ajourné)';
+        let bgColor = '#fef2f2';
 
         if (!hasData && gpa === 0) {
-            mention = 'أدخل العلامات للبدء';
+            mention = 'بانتظار إدخال النقاط...';
             color = '#64748b';
+            bgColor = '#f8fafc';
         } else {
-            if (gpa >= 10) { mention = 'مقبول (Passable)'; color = '#f59e0b'; }
-            if (gpa >= 12) { mention = 'قريب من الجيد (Assez Bien)'; color = '#0ea5e9'; }
-            if (gpa >= 14) { mention = 'جيد (Bien)'; color = '#10b981'; }
-            if (gpa >= 16) { mention = 'ممتاز (Très Bien)'; color = '#059669'; }
-            if (gpa < 10) color = '#ef4444';
+            if (gpa >= 10) { mention = 'مقبول (Passable)'; color = '#f59e0b'; bgColor = '#fffbeb'; }
+            if (gpa >= 12) { mention = 'قريب من الجيد (Assez Bien)'; color = '#3b82f6'; bgColor = '#eff6ff'; }
+            if (gpa >= 14) { mention = 'جيد (Bien)'; color = '#10b981'; bgColor = '#ecfdf5'; }
+            if (gpa >= 16) { mention = 'ممتاز (Très Bien)'; color = '#059669'; bgColor = '#ecfdf5'; }
+            if (gpa < 10) { color = '#ef4444'; bgColor = '#fef2f2'; }
         }
 
         scoreEl.style.color = color;
         mentionEl.innerText = mention;
-        if(hasData || gpa > 0) {
-            mentionEl.style.color = color;
-            mentionEl.style.backgroundColor = color + '15';
-        } else {
-            mentionEl.style.color = '#64748b';
-            mentionEl.style.backgroundColor = '#f1f5f9';
-        }
+        mentionEl.style.color = color;
+        mentionEl.style.backgroundColor = bgColor;
 
         const percentage = Math.min(Math.max(gpa, 0), 20) / 20;
         const rotation = -180 + (percentage * 180);
@@ -546,12 +611,56 @@
     }
 
     function resetData() {
-        if(confirm('هل تريد مسح الجدول بالكامل؟')) {
+        if(confirm('هل أنت متأكد من تصفير الجدول وحذف جميع البيانات؟')) {
             localStorage.removeItem(STORAGE_KEY);
-            subjects = JSON.parse(JSON.stringify(defaultData));
+            subjects = [JSON.parse(JSON.stringify(defaultRow))];
             renderTable();
             calculate();
         }
+    }
+
+    // --- دالة تصدير الصورة ---
+    function exportToImage() {
+        const btn = document.querySelector('.btn-export');
+        const originalText = btn.innerHTML;
+        const container = document.getElementById('captureArea');
+        const controlsDiv = document.querySelector('.controls');
+        
+        // 1. تغيير نص الزر
+        btn.innerHTML = '⏳ جاري الحفظ...';
+        
+        // 2. إخفاء أزرار التحكم (إضافة، تصفير، الخ) وعمود الحذف لجعل الصورة نظيفة
+        controlsDiv.classList.add('hide-on-capture');
+        document.querySelectorAll('.delete-btn').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.delete-col-head').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.delete-cell').forEach(el => el.style.display = 'none');
+
+        // 3. التقاط الصورة
+        html2canvas(container, {
+            scale: 2, // دقة عالية
+            backgroundColor: null, // استخدام خلفية العنصر
+            logging: false,
+            useCORS: true
+        }).then(canvas => {
+            // إنشاء رابط تحميل
+            const link = document.createElement('a');
+            link.download = 'SMAIC_Result_' + new Date().toLocaleDateString('en-GB').replace(/\//g, '-') + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            // 4. استعادة الحالة الأصلية
+            btn.innerHTML = originalText;
+            controlsDiv.classList.remove('hide-on-capture');
+            document.querySelectorAll('.delete-btn').forEach(el => el.style.display = 'flex');
+            document.querySelectorAll('.delete-col-head').forEach(el => el.style.display = 'table-cell');
+            document.querySelectorAll('.delete-cell').forEach(el => el.style.display = 'table-cell');
+        }).catch(err => {
+            console.error(err);
+            alert('حدث خطأ أثناء حفظ الصورة');
+            btn.innerHTML = originalText;
+            controlsDiv.classList.remove('hide-on-capture');
+            document.querySelectorAll('.delete-btn').forEach(el => el.style.display = 'flex');
+        });
     }
 </script>
 
