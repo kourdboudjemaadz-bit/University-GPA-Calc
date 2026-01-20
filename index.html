@@ -468,6 +468,7 @@
                 <td>
                     <select onchange="updateData(${index}, 'mode', this.value)">
                         <option value="mixed" ${sub.mode === 'mixed' ? 'selected' : ''}>67% إمتحان + 33% TD</option>
+                        <option value="sixty_forty" ${sub.mode === 'sixty_forty' ? 'selected' : ''}>60% إمتحان + 40% TD</option>
                         <option value="avg" ${sub.mode === 'avg' ? 'selected' : ''}>50% إمتحان + 50% TD</option>
                         <option value="exam_100" ${sub.mode === 'exam_100' ? 'selected' : ''}>100% إمتحان</option>
                         <option value="td_100" ${sub.mode === 'td_100' ? 'selected' : ''}>100% TD/TP</option>
@@ -545,12 +546,15 @@
             
             if (sub.mode === 'exam_100' && sub.exam !== null) hasValidGrades = true;
             else if (sub.mode === 'td_100' && sub.td !== null) hasValidGrades = true;
-            else if ((sub.mode === 'mixed' || sub.mode === 'avg') && (sub.exam !== null || sub.td !== null)) hasValidGrades = true;
+            else if ((['mixed', 'avg', 'sixty_forty'].includes(sub.mode)) && (sub.exam !== null || sub.td !== null)) hasValidGrades = true;
 
             let avg = 0;
             switch(sub.mode) {
                 case 'mixed':
                     avg = (exam * 2 + td) / 3;
+                    break;
+                case 'sixty_forty':
+                    avg = (exam * 0.6) + (td * 0.4);
                     break;
                 case 'avg':
                     avg = (exam + td) / 2;
@@ -663,4 +667,3 @@
 
 </body>
 </html>
-
