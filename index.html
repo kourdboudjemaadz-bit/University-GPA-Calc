@@ -439,6 +439,7 @@
             const examDisabled = sub.mode === 'td_100';
             const tdDisabled = sub.mode === 'exam_100';
 
+            // START MODIFICATION: Added 'seventy_thirty' option
             row.innerHTML = `
                 <td>
                     <input type="text" id="name-${index}" value="${sub.name}" placeholder="اسم المادة..." 
@@ -468,6 +469,7 @@
                 <td>
                     <select onchange="updateData(${index}, 'mode', this.value)">
                         <option value="mixed" ${sub.mode === 'mixed' ? 'selected' : ''}>67% إمتحان + 33% TD</option>
+                        <option value="seventy_thirty" ${sub.mode === 'seventy_thirty' ? 'selected' : ''}>70% إمتحان + 30% TD</option>
                         <option value="sixty_forty" ${sub.mode === 'sixty_forty' ? 'selected' : ''}>60% إمتحان + 40% TD</option>
                         <option value="avg" ${sub.mode === 'avg' ? 'selected' : ''}>50% إمتحان + 50% TD</option>
                         <option value="exam_100" ${sub.mode === 'exam_100' ? 'selected' : ''}>100% إمتحان</option>
@@ -478,6 +480,7 @@
             `;
             tbody.appendChild(row);
         });
+        // END MODIFICATION
 
         if (focusLast && subjects.length > 0) {
             const lastInput = document.getElementById(`name-${subjects.length - 1}`);
@@ -546,13 +549,20 @@
             
             if (sub.mode === 'exam_100' && sub.exam !== null) hasValidGrades = true;
             else if (sub.mode === 'td_100' && sub.td !== null) hasValidGrades = true;
-            else if ((['mixed', 'avg', 'sixty_forty'].includes(sub.mode)) && (sub.exam !== null || sub.td !== null)) hasValidGrades = true;
+            // START MODIFICATION: Included 'seventy_thirty' in validation check
+            else if ((['mixed', 'avg', 'sixty_forty', 'seventy_thirty'].includes(sub.mode)) && (sub.exam !== null || sub.td !== null)) hasValidGrades = true;
+            // END MODIFICATION
 
             let avg = 0;
             switch(sub.mode) {
                 case 'mixed':
                     avg = (exam * 2 + td) / 3;
                     break;
+                // START MODIFICATION: Added calculation logic
+                case 'seventy_thirty':
+                    avg = (exam * 0.7) + (td * 0.3);
+                    break;
+                // END MODIFICATION
                 case 'sixty_forty':
                     avg = (exam * 0.6) + (td * 0.4);
                     break;
