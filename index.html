@@ -79,21 +79,22 @@
             overflow: hidden;
         }
 
-        /* Language Toggle Button */
+        /* Language Toggle Button Style */
         .lang-btn {
             position: absolute;
             top: 20px;
             left: 20px; /* Default for RTL */
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.25);
             color: white;
-            border: 1px solid rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             padding: 8px 16px;
             border-radius: 20px;
             font-weight: 700;
             cursor: pointer;
-            z-index: 20;
+            z-index: 50; /* High Z-index to ensure visibility */
             transition: all 0.3s;
             font-size: 0.9rem;
+            display: block; /* Ensure it's displayed */
         }
 
         html[dir="ltr"] .lang-btn {
@@ -379,8 +380,6 @@
             font-size: 0.85rem;
             border-top: 1px solid #e2e8f0;
         }
-        
-        .hide-on-capture { display: none !important; }
 
         @media (max-width: 768px) {
             .container { margin: 0; border-radius: 0; min-height: 100vh; }
@@ -399,7 +398,7 @@
 
 <div class="container" id="captureArea">
     <header>
-        <button class="lang-btn hide-on-capture" onclick="toggleLanguage()" id="langBtn">English</button>
+        <button class="lang-btn" onclick="toggleLanguage()" id="langBtn">English</button>
         <h1><span id="txt-title">نادي علوم المادة للذكاء الاصطناعي</span> <br> SMAIC</h1>
         <h2 id="txt-subtitle">حاسبة المعدل الفصلي - 2026</h2>
     </header>
@@ -544,8 +543,8 @@
         currentLang = currentLang === 'ar' ? 'en' : 'ar';
         localStorage.setItem('smaic_lang', currentLang);
         applyLanguage(currentLang);
-        renderTable(); // Re-render to update dropdown options and placeholders
-        calculate();   // Re-calculate to update mention text
+        renderTable(); 
+        calculate();   
     }
 
     function applyLanguage(lang) {
@@ -773,9 +772,13 @@
         
         exportBtn.innerHTML = '⌛ ...';
         
+        // Added filter to hide the button ONLY in the screenshot
         htmlToImage.toPng(node, { 
             backgroundColor: '#f0f4ff',
-            style: { margin: '0' }
+            style: { margin: '0' },
+            filter: (node) => {
+                return node.id !== 'langBtn'; 
+            }
         })
         .then(function (dataUrl) {
             const link = document.createElement('a');
