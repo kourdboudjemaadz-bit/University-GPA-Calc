@@ -6,12 +6,11 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'G-06Q1R1WM5K');
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حاسبة المعدل - SMAIC</title>
+    <title>SMAIC - GPA Calculator</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -43,6 +42,12 @@
             display: flex;
             justify-content: center;
             align-items: flex-start;
+            transition: all 0.3s ease;
+        }
+
+        /* LTR Overrides for English */
+        html[dir="ltr"] body {
+            font-family: 'Segoe UI', 'Roboto', 'Cairo', sans-serif;
         }
 
         .container {
@@ -72,6 +77,33 @@
             text-align: center;
             position: relative;
             overflow: hidden;
+        }
+
+        /* Language Toggle Button */
+        .lang-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px; /* Default for RTL */
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            z-index: 20;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        html[dir="ltr"] .lang-btn {
+            left: auto;
+            right: 20px;
+        }
+
+        .lang-btn:hover {
+            background: white;
+            color: var(--primary);
         }
 
         header::before, header::after {
@@ -166,7 +198,7 @@
         }
 
         button {
-            font-family: 'Cairo', sans-serif;
+            font-family: inherit;
             border: none;
             padding: 12px 24px;
             border-radius: 12px;
@@ -231,7 +263,7 @@
         }
 
         thead th {
-            text-align: right;
+            text-align: inherit;
             color: var(--text-light);
             font-size: 0.9rem;
             font-weight: 600;
@@ -263,15 +295,25 @@
             vertical-align: middle;
         }
 
-        td:first-child {
+        /* Border radius adjustment based on Direction */
+        html[dir="rtl"] td:first-child {
             border-right: 1px solid #f1f5f9;
             border-left: 4px solid var(--primary);
             border-radius: 0 12px 12px 0;
         }
-        
-        td:last-child {
+        html[dir="rtl"] td:last-child {
             border-left: 1px solid #f1f5f9;
             border-radius: 12px 0 0 12px;
+        }
+
+        html[dir="ltr"] td:first-child {
+            border-left: 1px solid #f1f5f9;
+            border-right: 4px solid var(--primary);
+            border-radius: 12px 0 0 12px;
+        }
+        html[dir="ltr"] td:last-child {
+            border-right: 1px solid #f1f5f9;
+            border-radius: 0 12px 12px 0;
         }
 
         input, select {
@@ -279,7 +321,7 @@
             padding: 10px 12px;
             border: 2px solid #e2e8f0;
             border-radius: 10px;
-            font-family: 'Cairo', sans-serif;
+            font-family: inherit;
             font-size: 0.95rem;
             color: var(--text-main);
             background: #f8fafc;
@@ -357,8 +399,9 @@
 
 <div class="container" id="captureArea">
     <header>
-        <h1>نادي علوم المادة للذكاء الاصطناعي <br> SMAIC</h1>
-        <h2>حاسبة المعدل الفصلي - 2026</h2>
+        <button class="lang-btn hide-on-capture" onclick="toggleLanguage()" id="langBtn">English</button>
+        <h1><span id="txt-title">نادي علوم المادة للذكاء الاصطناعي</span> <br> SMAIC</h1>
+        <h2 id="txt-subtitle">حاسبة المعدل الفصلي - 2026</h2>
     </header>
 
     <div class="dashboard">
@@ -372,15 +415,15 @@
 
     <div class="controls">
         <button class="btn-add" onclick="addRow(true)">
-            <span>+</span> إضافة مادة
+            <span>+</span> <span id="txt-add">إضافة مادة</span>
         </button>
         
         <button class="btn-export" onclick="exportToImage()">
-            📷 حفظ الصورة
+            📷 <span id="txt-export">حفظ الصورة</span>
         </button>
 
         <button class="btn-reset" onclick="resetData()">
-            تصفير
+            <span id="txt-reset">تصفير</span>
         </button>
     </div>
 
@@ -388,11 +431,11 @@
         <table id="gradeTable">
             <thead>
                 <tr>
-                    <th class="col-name">اسم المادة</th>
-                    <th class="col-grade">الامتحان</th>
-                    <th class="col-grade">TD/TP</th>
-                    <th class="col-coef">المعامل</th>
-                    <th class="col-mode">طريقة الحساب</th>
+                    <th class="col-name" id="th-name">اسم المادة</th>
+                    <th class="col-grade" id="th-exam">الامتحان</th>
+                    <th class="col-grade" id="th-td">TD/TP</th>
+                    <th class="col-coef" id="th-coef">المعامل</th>
+                    <th class="col-mode" id="th-mode">طريقة الحساب</th>
                     <th class="col-action delete-col-head"></th>
                 </tr>
             </thead>
@@ -401,17 +444,87 @@
     </div>
 
     <footer>
-        تم التطوير بواسطة SMAIC &copy; 2026 | جامعة قاصدي مرباح ورقلة
+        <span id="txt-footer">تم التطوير بواسطة SMAIC &copy; 2026 | جامعة قاصدي مرباح ورقلة</span>
     </footer>
 </div>
 
 <script>
-    const STORAGE_KEY = 'smaic_calc_v9_fixed_export';
+    const STORAGE_KEY = 'smaic_calc_v10_lang';
+    let currentLang = localStorage.getItem('smaic_lang') || 'ar';
+
+    const translations = {
+        ar: {
+            title: "نادي علوم المادة للذكاء الاصطناعي",
+            subtitle: "حاسبة المعدل الفصلي - 2026",
+            add: "إضافة مادة",
+            export: "حفظ الصورة",
+            reset: "تصفير",
+            th_name: "اسم المادة",
+            th_exam: "الامتحان",
+            th_td: "TD/TP",
+            th_coef: "المعامل",
+            th_mode: "طريقة الحساب",
+            ph_name: "اسم المادة...",
+            footer: "تم التطوير بواسطة SMAIC &copy; 2026 | جامعة قاصدي مرباح ورقلة",
+            start_msg: "ابدأ بإدخال النقاط",
+            lang_btn: "English",
+            
+            // Mentions
+            adj: "مؤجل (Ajourné)",
+            pass: "ناجح (Passable)",
+            good: "قريب من الجيد (Assez Bien)",
+            very_good: "جيد (Bien)",
+            excellent: "جيد جداً (Très Bien)",
+            honor: "ممتاز (Excellent)",
+            
+            // Modes
+            mode_mixed: "67% إمتحان + 33% TD",
+            mode_70_30: "70% إمتحان + 30% TD",
+            mode_60_40: "60% إمتحان + 40% TD",
+            mode_50_50: "50% إمتحان + 50% TD",
+            mode_100_exam: "100% إمتحان",
+            mode_100_td: "100% TD/TP"
+        },
+        en: {
+            title: "Material Sciences AI Club",
+            subtitle: "Semester GPA Calculator - 2026",
+            add: "Add Subject",
+            export: "Save Image",
+            reset: "Reset",
+            th_name: "Subject Name",
+            th_exam: "Exam",
+            th_td: "TD/TP",
+            th_coef: "Coef",
+            th_mode: "Calculation Mode",
+            ph_name: "Subject name...",
+            footer: "Developed by SMAIC &copy; 2026 | UKMO University",
+            start_msg: "Enter grades to start",
+            lang_btn: "عربي",
+
+            // Mentions
+            adj: "Adjourned (Fail)",
+            pass: "Passable (Pass)",
+            good: "Fair (Assez Bien)",
+            very_good: "Good (Bien)",
+            excellent: "Very Good (Très Bien)",
+            honor: "Excellent",
+
+            // Modes
+            mode_mixed: "67% Exam + 33% TD",
+            mode_70_30: "70% Exam + 30% TD",
+            mode_60_40: "60% Exam + 40% TD",
+            mode_50_50: "50% Exam + 50% TD",
+            mode_100_exam: "100% Exam",
+            mode_100_td: "100% TD/TP"
+        }
+    };
     
     const defaultRow = {name: "", exam: null, td: null, coef: 1, mode: "mixed"};
     let subjects = [];
 
     window.onload = function() {
+        applyLanguage(currentLang);
+        
         const savedData = localStorage.getItem(STORAGE_KEY);
         if (savedData) {
             try {
@@ -427,9 +540,37 @@
         calculate();
     };
 
+    function toggleLanguage() {
+        currentLang = currentLang === 'ar' ? 'en' : 'ar';
+        localStorage.setItem('smaic_lang', currentLang);
+        applyLanguage(currentLang);
+        renderTable(); // Re-render to update dropdown options and placeholders
+        calculate();   // Re-calculate to update mention text
+    }
+
+    function applyLanguage(lang) {
+        const t = translations[lang];
+        document.documentElement.lang = lang;
+        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+        document.getElementById('langBtn').innerText = t.lang_btn;
+        document.getElementById('txt-title').innerText = t.title;
+        document.getElementById('txt-subtitle').innerText = t.subtitle;
+        document.getElementById('txt-add').innerText = t.add;
+        document.getElementById('txt-export').innerText = t.export;
+        document.getElementById('txt-reset').innerText = t.reset;
+        document.getElementById('th-name').innerText = t.th_name;
+        document.getElementById('th-exam').innerText = t.th_exam;
+        document.getElementById('th-td').innerText = t.th_td;
+        document.getElementById('th-coef').innerText = t.th_coef;
+        document.getElementById('th-mode').innerText = t.th_mode;
+        document.getElementById('txt-footer').innerHTML = t.footer;
+    }
+
     function renderTable(focusLast = false) {
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
+        const t = translations[currentLang];
 
         subjects.forEach((sub, index) => {
             const row = document.createElement('tr');
@@ -439,10 +580,9 @@
             const examDisabled = sub.mode === 'td_100';
             const tdDisabled = sub.mode === 'exam_100';
 
-            // START MODIFICATION: Added 'seventy_thirty' option
             row.innerHTML = `
                 <td>
-                    <input type="text" id="name-${index}" value="${sub.name}" placeholder="اسم المادة..." 
+                    <input type="text" id="name-${index}" value="${sub.name}" placeholder="${t.ph_name}" 
                     oninput="updateData(${index}, 'name', this.value)">
                 </td>
                 
@@ -468,19 +608,18 @@
                 
                 <td>
                     <select onchange="updateData(${index}, 'mode', this.value)">
-                        <option value="mixed" ${sub.mode === 'mixed' ? 'selected' : ''}>67% إمتحان + 33% TD</option>
-                        <option value="seventy_thirty" ${sub.mode === 'seventy_thirty' ? 'selected' : ''}>70% إمتحان + 30% TD</option>
-                        <option value="sixty_forty" ${sub.mode === 'sixty_forty' ? 'selected' : ''}>60% إمتحان + 40% TD</option>
-                        <option value="avg" ${sub.mode === 'avg' ? 'selected' : ''}>50% إمتحان + 50% TD</option>
-                        <option value="exam_100" ${sub.mode === 'exam_100' ? 'selected' : ''}>100% إمتحان</option>
-                        <option value="td_100" ${sub.mode === 'td_100' ? 'selected' : ''}>100% TD/TP</option>
+                        <option value="mixed" ${sub.mode === 'mixed' ? 'selected' : ''}>${t.mode_mixed}</option>
+                        <option value="seventy_thirty" ${sub.mode === 'seventy_thirty' ? 'selected' : ''}>${t.mode_70_30}</option>
+                        <option value="sixty_forty" ${sub.mode === 'sixty_forty' ? 'selected' : ''}>${t.mode_60_40}</option>
+                        <option value="avg" ${sub.mode === 'avg' ? 'selected' : ''}>${t.mode_50_50}</option>
+                        <option value="exam_100" ${sub.mode === 'exam_100' ? 'selected' : ''}>${t.mode_100_exam}</option>
+                        <option value="td_100" ${sub.mode === 'td_100' ? 'selected' : ''}>${t.mode_100_td}</option>
                     </select>
                 </td>
-                <td class="delete-cell"><button class="delete-btn" onclick="deleteRow(${index})" title="حذف المادة">&times;</button></td>
+                <td class="delete-cell"><button class="delete-btn" onclick="deleteRow(${index})" title="Delete">&times;</button></td>
             `;
             tbody.appendChild(row);
         });
-        // END MODIFICATION
 
         if (focusLast && subjects.length > 0) {
             const lastInput = document.getElementById(`name-${subjects.length - 1}`);
@@ -549,32 +688,16 @@
             
             if (sub.mode === 'exam_100' && sub.exam !== null) hasValidGrades = true;
             else if (sub.mode === 'td_100' && sub.td !== null) hasValidGrades = true;
-            // START MODIFICATION: Included 'seventy_thirty' in validation check
             else if ((['mixed', 'avg', 'sixty_forty', 'seventy_thirty'].includes(sub.mode)) && (sub.exam !== null || sub.td !== null)) hasValidGrades = true;
-            // END MODIFICATION
 
             let avg = 0;
             switch(sub.mode) {
-                case 'mixed':
-                    avg = (exam * 2 + td) / 3;
-                    break;
-                // START MODIFICATION: Added calculation logic
-                case 'seventy_thirty':
-                    avg = (exam * 0.7) + (td * 0.3);
-                    break;
-                // END MODIFICATION
-                case 'sixty_forty':
-                    avg = (exam * 0.6) + (td * 0.4);
-                    break;
-                case 'avg':
-                    avg = (exam + td) / 2;
-                    break;
-                case 'exam_100':
-                    avg = exam;
-                    break;
-                case 'td_100':
-                    avg = td;
-                    break;
+                case 'mixed': avg = (exam * 2 + td) / 3; break;
+                case 'seventy_thirty': avg = (exam * 0.7) + (td * 0.3); break;
+                case 'sixty_forty': avg = (exam * 0.6) + (td * 0.4); break;
+                case 'avg': avg = (exam + td) / 2; break;
+                case 'exam_100': avg = exam; break;
+                case 'td_100': avg = td; break;
             }
             
             totalScore += avg * sub.coef;
@@ -589,89 +712,83 @@
         const scoreEl = document.getElementById('finalScore');
         const mentionEl = document.getElementById('mentionText');
         const gaugeFill = document.getElementById('gaugeFill');
+        const t = translations[currentLang];
 
         scoreEl.innerText = gpa.toFixed(2);
         scoreEl.style.color = '#1e293b'; 
 
         let gaugeColor = '#ef4444';
-        let mention = 'مؤجل (Ajourné)';
+        let mention = t.adj;
         let bgColor = '#fef2f2';
 
-        if (!hasData && gpa === 0) {
-            mention = 'بانتظار إدخال النقاط...';
-            gaugeColor = '#64748b';
+        if (!hasData) {
+            mention = t.start_msg;
+            gaugeColor = '#e2e8f0';
             bgColor = '#f8fafc';
+            scoreEl.style.color = '#94a3b8';
         } else {
-            if (gpa >= 10) { mention = 'مقبول (Passable)'; gaugeColor = '#f59e0b'; bgColor = '#fffbeb'; }
-            if (gpa >= 12) { mention = 'قريب من الجيد (Assez Bien)'; gaugeColor = '#3b82f6'; bgColor = '#eff6ff'; }
-            if (gpa >= 14) { mention = 'جيد (Bien)'; gaugeColor = '#10b981'; bgColor = '#ecfdf5'; }
-            if (gpa >= 16) { mention = 'ممتاز (Très Bien)'; gaugeColor = '#059669'; bgColor = '#ecfdf5'; }
-            if (gpa < 10) { gaugeColor = '#ef4444'; bgColor = '#fef2f2'; }
+            if (gpa >= 10) {
+                gaugeColor = '#10b981';
+                bgColor = '#f0fdf4';
+                mention = t.pass;
+                if(gpa >= 12) mention = t.good;
+                if(gpa >= 14) mention = t.very_good;
+                if(gpa >= 16) mention = t.excellent;
+                if(gpa >= 18) mention = t.honor;
+            } else {
+                gaugeColor = '#ef4444'; 
+                bgColor = '#fef2f2';
+                mention = t.adj;
+            }
         }
 
         mentionEl.innerText = mention;
-        mentionEl.style.color = gaugeColor;
-        mentionEl.style.backgroundColor = bgColor;
+        mentionEl.style.backgroundColor = hasData ? (gpa >= 10 ? '#d1fae5' : '#fee2e2') : '#f1f5f9';
+        mentionEl.style.color = hasData ? (gpa >= 10 ? '#065f46' : '#991b1b') : '#64748b';
 
-        const percentage = Math.min(Math.max(gpa, 0), 20) / 20;
+        // Rotate gauge
+        const percentage = Math.min(Math.max(gpa / 20, 0), 1);
         const rotation = -180 + (percentage * 180);
-        
         gaugeFill.style.transform = `rotate(${rotation}deg)`;
         gaugeFill.style.backgroundColor = gaugeColor;
+    }
+
+    function resetData() {
+        if(confirm(currentLang === 'ar' ? "هل أنت متأكد من تصفير جميع البيانات؟" : "Are you sure you want to reset all data?")) {
+            subjects = [JSON.parse(JSON.stringify(defaultRow))];
+            renderTable();
+            calculate();
+            saveToLocal();
+        }
     }
 
     function saveToLocal() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(subjects));
     }
-
-    function resetData() {
-        if(confirm('هل أنت متأكد من تصفير الجدول وحذف جميع البيانات؟')) {
-            localStorage.removeItem(STORAGE_KEY);
-            subjects = [JSON.parse(JSON.stringify(defaultRow))];
-            renderTable();
-            calculate();
-        }
-    }
-
+    
     function exportToImage() {
-        const btn = document.querySelector('.btn-export');
-        const originalText = btn.innerHTML;
-        const container = document.getElementById('captureArea');
-        const controlsDiv = document.querySelector('.controls');
+        const node = document.getElementById('captureArea');
+        const exportBtn = document.querySelector('.btn-export');
+        const originalText = exportBtn.innerHTML;
         
-        btn.innerHTML = '⏳ جاري الحفظ...';
+        exportBtn.innerHTML = '⌛ ...';
         
-        controlsDiv.classList.add('hide-on-capture');
-        document.querySelectorAll('.delete-btn').forEach(el => el.style.display = 'none');
-        document.querySelectorAll('.delete-col-head').forEach(el => el.style.display = 'none');
-        document.querySelectorAll('.delete-cell').forEach(el => el.style.display = 'none');
-
-        htmlToImage.toPng(container, {
-            quality: 1.0,
-            backgroundColor: '#ffffff',
-            pixelRatio: 2
+        htmlToImage.toPng(node, { 
+            backgroundColor: '#f0f4ff',
+            style: { margin: '0' }
         })
         .then(function (dataUrl) {
             const link = document.createElement('a');
-            link.download = 'SMAIC_Result_' + new Date().toLocaleDateString('en-GB').replace(/\//g, '-') + '.png';
+            link.download = `SMAIC-GPA-${new Date().getTime()}.png`;
             link.href = dataUrl;
             link.click();
-            
-            restoreUI();
+            exportBtn.innerHTML = originalText;
         })
         .catch(function (error) {
             console.error('oops, something went wrong!', error);
-            alert('حدث خطأ أثناء حفظ الصورة، يرجى المحاولة مرة أخرى.');
-            restoreUI();
+            exportBtn.innerHTML = originalText;
+            alert('Error saving image.');
         });
-
-        function restoreUI() {
-            btn.innerHTML = originalText;
-            controlsDiv.classList.remove('hide-on-capture');
-            document.querySelectorAll('.delete-btn').forEach(el => el.style.display = 'flex');
-            document.querySelectorAll('.delete-col-head').forEach(el => el.style.display = 'table-cell');
-            document.querySelectorAll('.delete-cell').forEach(el => el.style.display = 'table-cell');
-        }
     }
 </script>
 
