@@ -7,7 +7,9 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
         :root {
@@ -44,8 +46,6 @@
             min-height: 100vh;
             transition: 0.3s;
         }
-        
-        /* تغيير الخط عند التحويل للإنجليزية */
         html[lang="en"] body { font-family: var(--font-en); }
 
         .container {
@@ -83,11 +83,7 @@
             color: white; padding: 30px; text-align: center; position: relative;
         }
 
-        /* أزرار الرأس (اللغة والثيم) */
-        .header-actions {
-            position: absolute; top: 20px; display: flex; gap: 10px;
-        }
-        /* ضبط مكان الأزرار حسب اللغة */
+        .header-actions { position: absolute; top: 20px; display: flex; gap: 10px; }
         html[dir="rtl"] .header-actions { left: 20px; }
         html[dir="ltr"] .header-actions { right: 20px; }
 
@@ -126,9 +122,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.15); max-width: 85%;
             display: none; animation: slideUp 0.6s ease;
         }
-        /* تغيير جهة الحدود حسب اللغة */
         html[dir="ltr"] #motivationQuote { border-right: none; border-left: 6px solid var(--accent); }
-        
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
         .badge-title { display: block; color: var(--accent); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; font-weight: 800; }
@@ -153,16 +147,15 @@
         th { color: #64748b; font-size: 0.9rem; padding-bottom: 10px; font-weight: 600; }
         td { background: var(--input-bg); padding: 5px; border-top: 1px solid rgba(0,0,0,0.05); border-bottom: 1px solid rgba(0,0,0,0.05); }
         
-        /* ضبط الحواف الدائرية للجدول حسب اللغة */
         html[dir="rtl"] td:first-child { border-radius: 0 10px 10px 0; border-right: 4px solid var(--primary); }
         html[dir="rtl"] td:last-child { border-radius: 10px 0 0 10px; }
-        
         html[dir="ltr"] td:first-child { border-radius: 10px 0 0 10px; border-left: 4px solid var(--primary); border-right: none; }
         html[dir="ltr"] td:last-child { border-radius: 0 10px 10px 0; }
         
         input, select { width: 100%; padding: 10px; border: 1px solid transparent; background: transparent; font-family: inherit; color: inherit; text-align: center; font-weight: 600; outline: none; }
         input:focus, select:focus { background: rgba(255,255,255,0.5); border-radius: 5px; }
         [data-theme="dark"] input:focus { background: rgba(0,0,0,0.2); }
+        input:disabled { opacity: 0.3; cursor: not-allowed; }
         
         #aboutModal { 
             display: none; padding: 30px; background: var(--mention-bg); 
@@ -208,11 +201,11 @@
         <table id="gradeTable">
             <thead>
                 <tr>
-                    <th width="35%" id="th-name">المادة</th>
-                    <th width="20%" id="th-exam">الامتحان</th>
-                    <th width="20%" id="th-td">TD/TP</th>
+                    <th width="30%" id="th-name">المادة</th>
+                    <th width="15%" id="th-exam">الامتحان</th>
+                    <th width="15%" id="th-td">TD/TP</th>
                     <th width="10%" id="th-coef">المعامل</th>
-                    <th width="15%" id="th-mode">النظام</th>
+                    <th width="25%" id="th-mode">النظام</th>
                     <th width="5%"></th>
                 </tr>
             </thead>
@@ -241,15 +234,12 @@
 </div>
 
 <script>
-    // --- Translations (القاموس) ---
     const langData = {
         ar: {
             title: "نادي علوم المادة للذكاء الاصطناعي",
             subtitle: "SMAIC - حاسبة المعدل الملكية 2026",
             welcome: "بوابة SMAIC الرقمية: حيث لا تُقاس قيمتك بما تحمله الورقة، بل بما يستطيعه عقلك..",
-            add: "+ إضافة مادة",
-            exp: "حفظ النتيجة",
-            rst: "تصفير",
+            add: "+ إضافة مادة", exp: "حفظ النتيجة", rst: "تصفير",
             th_name: "المادة", th_exam: "الامتحان", th_td: "TD/TP", th_coef: "المعامل", th_mode: "النظام",
             about_btn: "📱 عن التطبيق ورؤية SMAIC",
             about_title: "📱 رفيقك الرقمي نحو التميز",
@@ -257,16 +247,19 @@
             vision_title: "🎯 رؤية النادي:",
             vision_text: "\"نحن لا نكتفي بالدراسة النظرية، بل ندمج علوم المادة بالتقنيات الحديثة. هذا التطبيق هو خطوة نحو رقمنة الحياة الجامعية بلمسة طلابية خالصة.\"",
             ph_name: "اسم المادة...",
-            mode_mixed: "67% + 33%", mode_50: "50% + 50%", mode_100: "100% امتحان",
+            mode_mixed: "67% إمتحان + 33% TD",
+            mode_70: "70% إمتحان + 30% TD",
+            mode_60: "60% إمتحان + 40% TD",
+            mode_50: "50% إمتحان + 50% TD",
+            mode_100: "100% إمتحان",
+            mode_100td: "100% TD/TP",
             sig: "الدرجاتُ أرقامٌ عابرة، و SMAIC وطنُ الخالدين.. مكانكَ بين العظماء."
         },
         en: {
             title: "Material Sciences & AI Club",
             subtitle: "SMAIC - ROYAL GPA CALCULATOR 2026",
             welcome: "SMAIC Digital Portal: Your value isn't measured by paper, but by what your mind can achieve.",
-            add: "+ Add Subject",
-            exp: "Save Result",
-            rst: "Reset",
+            add: "+ Add Subject", exp: "Save Result", rst: "Reset",
             th_name: "Subject", th_exam: "Exam", th_td: "TD/TP", th_coef: "Coef", th_mode: "Mode",
             about_btn: "📱 About App & SMAIC Vision",
             about_title: "📱 Your Digital Companion to Excellence",
@@ -274,12 +267,16 @@
             vision_title: "🎯 Our Vision:",
             vision_text: "\"We go beyond theory, merging Material Sciences with modern tech. This app is a step towards digitizing university life with a pure student touch.\"",
             ph_name: "Subject Name...",
-            mode_mixed: "67% + 33%", mode_50: "50% + 50%", mode_100: "100% Exam",
+            mode_mixed: "67% Exam + 33% TD",
+            mode_70: "70% Exam + 30% TD",
+            mode_60: "60% Exam + 40% TD",
+            mode_50: "50% Exam + 50% TD",
+            mode_100: "100% Exam",
+            mode_100td: "100% TD/TP",
             sig: "Grades are fleeting numbers, SMAIC is where legends are made."
         }
     };
 
-    // --- Royal Quotes (AR & EN) ---
     const quotesDB = {
         ar: {
             diamond: { title: "مقام التفرّد - The Singularity 💎", text: ["أنت لست مجرد رقم، أنت خوارزمية الإبداع التي بلغت الكمال.", "بمعايير SMAIC للتميز.. أنت طاقة إبداعية تجاوزت كل التوقعات.", "في فيزياء التميز، أنت الضوء الذي لا يسبقه شيء."] },
@@ -301,8 +298,17 @@
     let subjects = [{name: "", exam: null, td: null, coef: 1, mode: "mixed"}];
     let welcomeIndex = 0;
     let welcomeTimer;
+    let lastState = null;
+
+    // --- Auto-Save Logic ---
+    function saveData() { localStorage.setItem('smaic_subjects', JSON.stringify(subjects)); }
+    function loadData() {
+        const saved = localStorage.getItem('smaic_subjects');
+        if (saved) subjects = JSON.parse(saved);
+    }
 
     window.onload = function() {
+        loadData();
         renderTable();
         startWelcomeType();
     };
@@ -311,11 +317,8 @@
         curLang = curLang === 'ar' ? 'en' : 'ar';
         document.documentElement.lang = curLang;
         document.documentElement.dir = curLang === 'ar' ? 'rtl' : 'ltr';
-        
-        // Update Button Text
         document.querySelector('[onclick="toggleLang()"]').innerText = curLang === 'ar' ? 'EN' : 'عربي';
 
-        // Update UI Text
         const t = langData[curLang];
         document.getElementById('txt-title').innerText = t.title;
         document.getElementById('txt-subtitle').innerText = t.subtitle;
@@ -333,10 +336,7 @@
         document.getElementById('vision-title').innerText = t.vision_title;
         document.getElementById('vision-text').innerText = t.vision_text;
 
-        // Restart Welcome Typing
         startWelcomeType();
-        
-        // Re-render table (for placeholders and dropdowns)
         renderTable();
     }
 
@@ -356,31 +356,38 @@
         }
     }
 
-    // --- Table Functions ---
     function addRow() {
         subjects.push({name: "", exam: null, td: null, coef: 1, mode: "mixed"});
         renderTable();
+        saveData();
     }
 
     function renderTable() {
         const t = langData[curLang];
         const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = subjects.map((s, i) => `
+        tbody.innerHTML = subjects.map((s, i) => {
+            const examDisabled = s.mode === '100td' ? 'disabled' : '';
+            const tdDisabled = s.mode === '100exam' ? 'disabled' : '';
+            
+            return `
             <tr>
                 <td><input type="text" placeholder="${t.ph_name}" value="${s.name}" oninput="updateData(${i}, 'name', this.value)" style="text-align:${curLang==='ar'?'right':'left'}"></td>
-                <td><input type="number" placeholder="--" step="0.01" value="${s.exam || ''}" oninput="updateData(${i}, 'exam', this.value)"></td>
-                <td><input type="number" placeholder="--" step="0.01" value="${s.td || ''}" oninput="updateData(${i}, 'td', this.value)" ${s.mode === '100exam' ? 'disabled' : ''}></td>
+                <td><input type="number" placeholder="--" step="0.01" value="${s.exam || ''}" oninput="updateData(${i}, 'exam', this.value)" ${examDisabled}></td>
+                <td><input type="number" placeholder="--" step="0.01" value="${s.td || ''}" oninput="updateData(${i}, 'td', this.value)" ${tdDisabled}></td>
                 <td><input type="number" value="${s.coef}" oninput="updateData(${i}, 'coef', this.value)"></td>
                 <td>
                     <select onchange="updateData(${i}, 'mode', this.value)" style="font-size:0.8rem">
                         <option value="mixed" ${s.mode === 'mixed' ? 'selected' : ''}>${t.mode_mixed}</option>
+                        <option value="7030" ${s.mode === '7030' ? 'selected' : ''}>${t.mode_70}</option>
+                        <option value="6040" ${s.mode === '6040' ? 'selected' : ''}>${t.mode_60}</option>
                         <option value="5050" ${s.mode === '5050' ? 'selected' : ''}>${t.mode_50}</option>
                         <option value="100exam" ${s.mode === '100exam' ? 'selected' : ''}>${t.mode_100}</option>
+                        <option value="100td" ${s.mode === '100td' ? 'selected' : ''}>${t.mode_100td}</option>
                     </select>
                 </td>
                 <td style="text-align:center"><button onclick="removeRow(${i})" style="background:none; color:var(--danger); padding:0; width:30px; margin:0 auto;">✕</button></td>
             </tr>
-        `).join('');
+        `}).join('');
         calculate();
     }
 
@@ -392,33 +399,48 @@
             subjects[index][field] = value === "" ? null : parseFloat(value);
         }
         calculate();
+        saveData();
     }
 
     function removeRow(index) {
         subjects.splice(index, 1);
         renderTable();
+        saveData();
     }
 
     function resetData() {
-        if(confirm(curLang === 'ar' ? "هل أنت متأكد؟" : "Are you sure?")) {
+        if(confirm(curLang === 'ar' ? "هل أنت متأكد؟ سيتم حذف جميع البيانات." : "Are you sure? All data will be cleared.")) {
             subjects = [{name: "", exam: null, td: null, coef: 1, mode: "mixed"}];
+            localStorage.removeItem('smaic_subjects');
             renderTable();
             document.getElementById('finalScore').innerText = "0.00";
             document.getElementById('motivationQuote').style.display = 'none';
             document.getElementById('gaugeFill').style.transform = 'rotate(-180deg)';
+            lastState = null;
         }
     }
 
-    // --- Calculation & Logic ---
-    let lastState = null;
     function calculate() {
         let totalWeighted = 0, totalCoef = 0, hasData = false;
+        
         subjects.forEach(s => {
-            if (s.exam !== null) hasData = true;
+            if (s.mode === '100td') {
+                if (s.td !== null) hasData = true;
+            } else {
+                if (s.exam !== null) hasData = true;
+            }
+            
             let m = 0;
-            if (s.mode === 'mixed') m = (s.exam||0)*0.67 + (s.td||0)*0.33;
-            else if (s.mode === '5050') m = (s.exam||0)*0.5 + (s.td||0)*0.5;
-            else m = (s.exam||0);
+            const ex = s.exam || 0;
+            const td = s.td || 0;
+
+            if (s.mode === 'mixed') m = ex * 0.67 + td * 0.33;
+            else if (s.mode === '7030') m = ex * 0.70 + td * 0.30;
+            else if (s.mode === '6040') m = ex * 0.60 + td * 0.40;
+            else if (s.mode === '5050') m = ex * 0.50 + td * 0.50;
+            else if (s.mode === '100td') m = td;
+            else m = ex;
+
             totalWeighted += m * (s.coef||1);
             totalCoef += (s.coef||1);
         });
@@ -434,10 +456,23 @@
             if (currentState !== lastState) {
                 const soundId = currentState === 'pass' ? 'sound-success' : 'sound-fail';
                 document.getElementById(soundId).play().catch(e=>{});
+                
+                // Trigger Confetti only on passing
+                if (currentState === 'pass') triggerConfetti();
+                
                 lastState = currentState;
             }
         }
         updateMotivation(gpa, hasData);
+    }
+
+    function triggerConfetti() {
+        confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#4f46e5', '#fbbf24', '#10b981']
+        });
     }
 
     function updateMotivation(gpa, hasData) {
@@ -466,7 +501,6 @@
             else if(gpa < 10) quoteBox.style.borderColor = "#ef4444";
             else quoteBox.style.borderColor = "#4f46e5";
             
-            // Fix Border Side based on Dir
             if(curLang === 'ar') {
                 quoteBox.style.borderRightWidth = "6px"; quoteBox.style.borderLeftWidth = "0";
             } else {
@@ -495,7 +529,7 @@
         
         controls.style.display = 'none';
         aboutDiv.style.display = 'none';
-        headerBtns.style.display = 'none'; // Hide buttons in image
+        headerBtns.style.display = 'none';
 
         htmlToImage.toPng(node, { backgroundColor: getComputedStyle(document.body).getPropertyValue('--card-bg') })
             .then(function (dataUrl) {
