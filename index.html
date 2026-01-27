@@ -31,10 +31,12 @@
         body { font-family: var(--font-ar); background: var(--bg-gradient); margin: 0; padding: 20px; color: var(--text-main); min-height: 100vh; transition: 0.3s; }
         html[lang="en"] body { font-family: var(--font-en); }
 
+        /* الحاوية الرئيسية */
         .container {
             width: 100%; max-width: 900px; background: var(--card-bg);
             border-radius: 24px; margin: 0 auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
             overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.1);
+            z-index: 10; /* فوق الكشف المخفي */
         }
 
         /* الختم الملكي */
@@ -56,13 +58,7 @@
         
         #welcome-msg { text-align: center; color: var(--primary); font-weight: 700; margin: 15px 20px; min-height: 1.5em; font-size: 1rem; line-height: 1.5; }
         
-        /* Student Name Input */
-        .student-name-input {
-            display: block; margin: 0 auto 20px; padding: 10px 20px;
-            border: 2px solid var(--primary); border-radius: 50px;
-            width: 80%; max-width: 300px; text-align: center; font-family: inherit; font-weight: bold;
-            background: var(--input-bg); color: var(--text-main);
-        }
+        .student-name-input { display: block; margin: 0 auto 20px; padding: 10px 20px; border: 2px solid var(--primary); border-radius: 50px; width: 80%; max-width: 300px; text-align: center; font-family: inherit; font-weight: bold; background: var(--input-bg); color: var(--text-main); }
 
         .dashboard { padding: 20px; text-align: center; }
         .score-display { font-size: 3.5rem; font-weight: 900; margin-top: -60px; position: relative; z-index: 2; text-shadow: 0 5px 15px rgba(0,0,0,0.1); }
@@ -102,16 +98,24 @@
         #aboutModal { display: none; padding: 30px; background: var(--mention-bg); border-top: 3px solid var(--accent); animation: fadeIn 0.5s; position: relative; overflow: hidden; margin-top: 20px; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* --- تصميم كشف النقاط الرسمي (المخفي) --- */
+        /* --- تصميم كشف النقاط الرسمي (الإصلاح الجذري) --- */
         #officialTranscript {
-            position: absolute; top: -9999px; left: -9999px; /* مخفي عن الشاشة */
-            width: 800px; /* عرض A4 تقريبي */
-            background: white; color: black;
-            padding: 40px; font-family: 'Amiri', 'Cairo', serif;
+            /* نستخدم fixed لوضعه خارج الشاشة لكنه مرئي للمتصفح */
+            position: fixed; 
+            left: -9999px; /* خارج الشاشة تماماً */
+            top: 0;
+            width: 800px; /* عرض A4 */
+            background: white; 
+            color: black;
+            padding: 40px; 
+            font-family: 'Amiri', 'Cairo', serif;
             border: 1px solid #ddd;
+            z-index: 99999; /* طبقة عليا جداً */
+            direction: rtl; /* الكشف دائماً عربي أو حسب الحاجة */
         }
+        
+        /* تصميم الكشف الداخلي */
         .trans-header { text-align: center; border-bottom: 3px double #000; padding-bottom: 20px; margin-bottom: 30px; position: relative; }
-        .trans-logo { position: absolute; top: 0; left: 0; width: 80px; opacity: 0.8; }
         .trans-title { font-size: 2rem; font-weight: bold; margin: 10px 0; font-family: 'Amiri', serif; }
         .trans-info { display: flex; justify-content: space-between; margin-bottom: 30px; font-size: 1.1rem; border: 1px solid #eee; padding: 15px; border-radius: 8px; }
         .trans-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-family: 'Amiri', serif; }
@@ -119,6 +123,8 @@
         .trans-table td { border: 1px solid #000; padding: 8px; text-align: center; }
         .trans-footer { display: flex; justify-content: space-between; margin-top: 50px; font-family: 'Amiri', serif; }
         .trans-sign { text-align: center; width: 200px; }
+        
+        /* ختم الكشف المائي */
         .trans-watermark {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-10deg);
             width: 400px; height: 400px; opacity: 0.05; z-index: 0; pointer-events: none;
@@ -432,7 +438,7 @@
             else m = ex;
             totalWeighted += m * (s.coef||1);
             totalCoef += (s.coef||1);
-            s.calculatedAvg = m; // Save for print
+            s.calculatedAvg = m;
         });
 
         const gpa = totalCoef > 0 ? totalWeighted / totalCoef : 0;
@@ -486,7 +492,6 @@
 
     // --- وظيفة الطباعة الاحترافية ---
     function printOfficialTranscript() {
-        // 1. Fill data
         const student = document.getElementById('studentName').value || (curLang==='ar'?'فاعل خير':'Anonymous');
         document.getElementById('printName').innerText = student;
         document.getElementById('printDate').innerText = new Date().toLocaleDateString();
@@ -494,34 +499,40 @@
         const tbody = document.getElementById('printBody');
         tbody.innerHTML = '';
         
+        let totalW = 0, totalC = 0;
         subjects.forEach(s => {
-            if(!s.name && !s.exam && !s.td) return;
-            const avg = s.calculatedAvg || 0;
-            const decision = avg >= 10 ? 
-                `<span style="color:green">${langData[curLang].tr_pass}</span>` : 
-                `<span style="color:red">${langData[curLang].tr_fail}</span>`;
+            if(!s.name && s.exam === null && s.td === null) return;
+            let m = 0; const ex = s.exam || 0; const td = s.td || 0;
+            if (s.mode === 'mixed') m = ex * 0.67 + td * 0.33;
+            else if (s.mode === '7030') m = ex * 0.70 + td * 0.30;
+            else if (s.mode === '6040') m = ex * 0.60 + td * 0.40;
+            else if (s.mode === '5050') m = ex * 0.50 + td * 0.50;
+            else if (s.mode === '100td') m = td;
+            else m = ex;
+            totalW += m * (s.coef||1);
+            totalC += (s.coef||1);
             
-            tbody.innerHTML += `
-                <tr>
-                    <td style="text-align:${curLang==='ar'?'right':'left'}; padding:8px 15px;">${s.name || (curLang==='ar'?'مادة':'Subject')}</td>
-                    <td>${avg.toFixed(2)}</td>
-                    <td>${s.coef}</td>
-                    <td>${decision}</td>
-                </tr>
-            `;
+            const decision = m >= 10 ? 
+                `<span style="color:green; font-weight:bold">${langData[curLang].tr_pass}</span>` : 
+                `<span style="color:red; font-weight:bold">${langData[curLang].tr_fail}</span>`;
+            
+            tbody.innerHTML += `<tr>
+                <td style="text-align:${curLang==='ar'?'right':'left'}; padding:8px 15px;">${s.name || (curLang==='ar'?'مادة':'Subject')}</td>
+                <td style="text-align:center">${m.toFixed(2)}</td>
+                <td style="text-align:center">${s.coef}</td>
+                <td style="text-align:center">${decision}</td>
+            </tr>`;
         });
 
-        const { gpa, totalCoef } = calculate();
+        const gpa = totalC > 0 ? totalW / totalC : 0;
         document.getElementById('printGPA').innerText = gpa.toFixed(2);
-        document.getElementById('printCoef').innerText = totalCoef;
+        document.getElementById('printCoef').innerText = totalC;
         document.getElementById('printMention').innerText = gpa >= 10 ? langData[curLang].tr_pass : langData[curLang].tr_fail;
 
-        // 2. Capture and download
+        // إظهار العنصر فقط للمكتبة
         const node = document.getElementById('officialTranscript');
-        const originalPos = node.style.position;
-        // Make it visible for capture (but off-screen)
         
-        htmlToImage.toPng(node, { backgroundColor: '#fff' })
+        htmlToImage.toPng(node, { backgroundColor: '#ffffff', quality: 1.0 })
             .then(function (dataUrl) {
                 const link = document.createElement('a');
                 link.download = `SMAIC-Transcript-${student}-${new Date().getTime()}.png`;
