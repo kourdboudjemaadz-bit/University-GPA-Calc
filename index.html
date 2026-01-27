@@ -196,7 +196,7 @@
         <h3>وزارة التعليم العالي والبحث العلمي</h3>
         <h3>جامعة قاصدي مرباح ورقلة - UKMO</h3>
         <h1 id="tr-main-title">كشف نقاط مؤقت (محاكاة)</h1>
-        <p>السنة الجامعية: 2025 / 2026</p>
+        <p>السنة الجامعية: 2025/2026</p>
     </div>
 
     <div class="tr-info">
@@ -433,19 +433,13 @@
         });
     }
 
-    // ==========================================
-    // تم تعديل دالة التصدير لتطلب التخصص
-    // ==========================================
     function exportToPDF() {
-        // 1. طلب اسم الطالب
         const studentName = prompt(curLang === 'ar' ? "أدخل اسم الطالب:" : "Enter Student Name:");
         if (studentName === null) return; 
 
-        // 2. طلب التخصص (جديد)
         const majorName = prompt(curLang === 'ar' ? "أدخل التخصص (مثال: فيزياء كهروضوئية):" : "Enter Major/Specialty (e.g. Photovoltaics):");
         if (majorName === null) return; 
 
-        // تحديث البيانات في القالب
         document.getElementById('tr-student-name').innerText = studentName || ".....................";
         document.getElementById('tr-major-text').innerText = majorName || (curLang === 'ar' ? "علوم وتكنولوجيا" : "Sciences & Technologies");
         document.getElementById('tr-date').innerText = new Date().toLocaleDateString('en-GB');
