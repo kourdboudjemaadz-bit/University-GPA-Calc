@@ -48,6 +48,7 @@
         }
         html[lang="en"] body { font-family: var(--font-en); }
 
+        /* الحاوية الرئيسية */
         .container {
             width: 100%; max-width: 900px;
             background: var(--card-bg);
@@ -56,31 +57,35 @@
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
             overflow: hidden;
             position: relative;
-            z-index: 1;
             border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* الختم الملكي */
-        .container::after {
-            content: '';
+        /* --- الختم الملكي (عنصر مستقل لضمان الظهور) --- */
+        .watermark {
             position: absolute;
             top: 50%; left: 50%;
-            width: 450px; height: 450px;
+            width: 500px; height: 500px;
             transform: translate(-50%, -50%) rotate(-10deg);
-            opacity: 0.08;
-            z-index: -1;
+            z-index: 0; /* خلفية */
             pointer-events: none;
+            opacity: 0.12;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cdefs%3E%3Cpath id='textcircle' d='M250,400 a150,150 0 0,1 0,-300 a150,150 0 0,1 0,300 Z' transform='rotate(180,250,250)'/%3E%3C/defs%3E%3Cg style='fill:%23cba135; stroke:%23cba135;'%3E%3Ccircle cx='250' cy='250' r='240' style='fill:none; stroke-width:4; opacity: 0.7;'/%3E%3Ccircle cx='250' cy='250' r='230' style='fill:none; stroke-width:1; opacity: 0.5;'/%3E%3Ccircle cx='250' cy='250' r='180' style='fill:none; stroke-width:3; opacity: 0.7;'/%3E%3Ctext x='250' y='235' text-anchor='middle' style='font-size:85px; font-weight:900; font-family:serif; stroke:none;'%3ESMAIC%3C/text%3E%3Ctext x='250' y='285' text-anchor='middle' style='font-size:28px; font-weight:bold; letter-spacing:8px; stroke:none; opacity:0.8;'%3E2026%3C/text%3E%3Ctext dy='-20' style='stroke:none;'%3E%3CtextPath xlink:href='%23textcircle' startOffset='50%25' text-anchor='middle' style='font-size:26px; font-weight:bold; letter-spacing:2px; font-family: sans-serif;'%3E&#1580;&#1575;&#1605;&#1593;&#1577; &#1608;&#1585;&#1602;&#1604;&#1577; &#9733; PHYSICS %26 AI CLUB &#9733; &#1606;&#1575;&#1583;&#1610; &#1593;&#1604;&#1608;&#1605; &#1575;&#1604;&#1605;&#1575;&#1583;&#1577;%3C/textPath%3E%3C/text%3E%3C/g%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: center;
             background-size: contain;
             mix-blend-mode: multiply;
         }
-        [data-theme="dark"] .container::after { filter: invert(1); opacity: 0.05; }
+        [data-theme="dark"] .watermark { filter: invert(1); opacity: 0.08; }
+
+        /* ضمان أن المحتوى فوق الختم */
+        header, .dashboard, .controls, .table-container, #aboutModal, .footer-area {
+            position: relative;
+            z-index: 1;
+        }
 
         header {
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white; padding: 30px; text-align: center; position: relative;
+            color: white; padding: 30px; text-align: center;
         }
 
         .header-actions { position: absolute; top: 20px; display: flex; gap: 10px; }
@@ -171,6 +176,9 @@
 <audio id="sound-fail" src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
 
 <div class="container" id="captureArea">
+    
+    <div class="watermark"></div>
+
     <header>
         <div class="header-actions">
             <button onclick="toggleTheme()" class="icon-btn" title="Theme">🌙</button>
@@ -213,7 +221,7 @@
         </table>
     </div>
 
-    <div style="text-align: center; padding: 15px; background: var(--card-bg);" data-html2canvas-ignore="true">
+    <div class="footer-area" style="text-align: center; padding: 15px; background: var(--card-bg);" data-html2canvas-ignore="true">
         <button onclick="toggleAbout()" id="btn-about" style="background:none; color:var(--text-main); text-decoration:underline; opacity:0.7; font-size: 0.85rem; width: auto; margin: 0 auto;">
             📱 عن التطبيق ورؤية SMAIC
         </button>
@@ -300,7 +308,6 @@
     let welcomeTimer;
     let lastState = null;
 
-    // --- Auto-Save Logic ---
     function saveData() { localStorage.setItem('smaic_subjects', JSON.stringify(subjects)); }
     function loadData() {
         const saved = localStorage.getItem('smaic_subjects');
@@ -457,7 +464,6 @@
                 const soundId = currentState === 'pass' ? 'sound-success' : 'sound-fail';
                 document.getElementById(soundId).play().catch(e=>{});
                 
-                // Trigger Confetti only on passing
                 if (currentState === 'pass') triggerConfetti();
                 
                 lastState = currentState;
@@ -524,7 +530,7 @@
     function exportToImage() {
         const node = document.getElementById('captureArea');
         const controls = document.querySelector('.controls');
-        const aboutDiv = document.querySelector('#btn-about').parentElement;
+        const aboutDiv = document.querySelector('.footer-area');
         const headerBtns = document.querySelector('.header-actions');
         
         controls.style.display = 'none';
