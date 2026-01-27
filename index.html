@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMAIC - GPA Calculator | Royal Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMAIC - GPA Calculator | Official Release</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Poppins:wght@400;600;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
@@ -13,6 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
+        /* --- إعدادات التصميم الأساسية --- */
         :root {
             --primary: #4f46e5; --primary-dark: #4338ca; --accent: #fbbf24;
             --bg-body: #f0f4ff; --bg-gradient: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
@@ -29,84 +30,102 @@
             --input-bg: #334155; --mention-bg: #1e293b;
         }
 
-        body { font-family: var(--font-ar); background: var(--bg-gradient); margin: 0; padding: 20px; color: var(--text-main); min-height: 100vh; transition: 0.3s; }
+        * { box-sizing: border-box; }
+        body { font-family: var(--font-ar); background: var(--bg-gradient); margin: 0; padding: 15px; color: var(--text-main); min-height: 100vh; transition: 0.3s; }
         html[lang="en"] body { font-family: var(--font-en); }
 
         .container {
-            width: 100%; max-width: 900px; background: var(--card-bg);
+            width: 100%; max-width: 850px; background: var(--card-bg);
             border-radius: 24px; margin: 0 auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
             overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.1); z-index: 10;
         }
 
+        /* الختم الخلفي للتطبيق */
         .watermark {
             position: absolute; top: 50%; left: 50%; width: 500px; height: 500px;
             transform: translate(-50%, -50%) rotate(-10deg); z-index: 0;
-            pointer-events: none; opacity: 0.12;
+            pointer-events: none; opacity: 0.1;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cdefs%3E%3Cpath id='textcircle' d='M250,400 a150,150 0 0,1 0,-300 a150,150 0 0,1 0,300 Z' transform='rotate(180,250,250)'/%3E%3C/defs%3E%3Cg style='fill:%23cba135; stroke:%23cba135;'%3E%3Ccircle cx='250' cy='250' r='240' style='fill:none; stroke-width:4; opacity: 0.7;'/%3E%3Ccircle cx='250' cy='250' r='230' style='fill:none; stroke-width:1; opacity: 0.5;'/%3E%3Ccircle cx='250' cy='250' r='180' style='fill:none; stroke-width:3; opacity: 0.7;'/%3E%3Ctext x='250' y='235' text-anchor='middle' style='font-size:85px; font-weight:900; font-family:serif; stroke:none;'%3ESMAIC%3C/text%3E%3Ctext x='250' y='285' text-anchor='middle' style='font-size:28px; font-weight:bold; letter-spacing:8px; stroke:none; opacity:0.8;'%3E2026%3C/text%3E%3Ctext dy='-20' style='stroke:none;'%3E%3CtextPath xlink:href='%23textcircle' startOffset='50%25' text-anchor='middle' style='font-size:26px; font-weight:bold; letter-spacing:2px; font-family: sans-serif;'%3E&#1580;&#1575;&#1605;&#1593;&#1577; &#1608;&#1585;&#1602;&#1604;&#1577; &#9733; PHYSICS %26 AI CLUB &#9733; &#1606;&#1575;&#1583;&#1610; &#1593;&#1604;&#1608;&#1605; &#1575;&#1604;&#1605;&#1575;&#1583;&#1577;%3C/textPath%3E%3C/text%3E%3C/g%3E%3C/svg%3E");
             background-repeat: no-repeat; background-position: center; background-size: contain; mix-blend-mode: multiply;
         }
-        [data-theme="dark"] .watermark { filter: invert(1); opacity: 0.08; }
+        [data-theme="dark"] .watermark { filter: invert(1); opacity: 0.05; }
 
         header, .dashboard, .controls, .table-container, #aboutModal, .footer-area { position: relative; z-index: 1; }
 
-        header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 30px; text-align: center; }
+        header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 25px 20px; text-align: center; }
         .header-actions { position: absolute; top: 20px; display: flex; gap: 10px; }
         html[dir="rtl"] .header-actions { left: 20px; } html[dir="ltr"] .header-actions { right: 20px; }
         .icon-btn { background: rgba(255,255,255,0.2); border: none; width: 35px; height: 35px; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; transition: 0.2s; }
         
         #welcome-msg { text-align: center; color: var(--primary); font-weight: 700; margin: 15px 20px; min-height: 1.5em; font-size: 1rem; line-height: 1.5; }
-        .student-name-input { display: block; margin: 0 auto 20px; padding: 10px 20px; border: 2px solid var(--primary); border-radius: 50px; width: 80%; max-width: 300px; text-align: center; font-family: inherit; font-weight: bold; background: var(--input-bg); color: var(--text-main); }
+        .student-name-input { display: block; margin: 0 auto 20px; padding: 12px 20px; border: 2px solid var(--primary); border-radius: 50px; width: 90%; max-width: 350px; text-align: center; font-family: inherit; font-weight: bold; background: var(--input-bg); color: var(--text-main); font-size: 1rem; }
+        
         .dashboard { padding: 20px; text-align: center; }
         .score-display { font-size: 3.5rem; font-weight: 900; margin-top: -60px; position: relative; z-index: 2; text-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .gauge-wrapper { position: relative; width: 220px; height: 110px; margin: 0 auto; overflow: hidden; }
         .gauge-bg { width: 220px; height: 110px; background: rgba(0,0,0,0.1); border-radius: 110px 110px 0 0; }
         .gauge-fill { width: 220px; height: 110px; background: var(--success); border-radius: 110px 110px 0 0; position: absolute; top: 0; left: 0; transform-origin: center bottom; transform: rotate(-180deg); transition: 1s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        #motivationQuote { margin: 20px auto; padding: 25px; border-radius: 16px; background: linear-gradient(145deg, #1e293b, #0f172a); color: #f1f5f9; border-right: 6px solid var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.15); max-width: 85%; display: none; animation: slideUp 0.6s ease; }
+        
+        #motivationQuote { margin: 20px auto; padding: 20px; border-radius: 16px; background: linear-gradient(145deg, #1e293b, #0f172a); color: #f1f5f9; border-right: 6px solid var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.15); max-width: 90%; display: none; animation: slideUp 0.6s ease; }
         html[dir="ltr"] #motivationQuote { border-right: none; border-left: 6px solid var(--accent); }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
         .badge-title { display: block; color: var(--accent); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; font-weight: 800; }
         .quote-text { font-size: 1.1rem; line-height: 1.6; font-weight: 600; margin-bottom: 15px; }
         .club-signature { font-size: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; opacity: 0.7; font-weight: 300; }
+
         .controls { padding: 15px; display: flex; gap: 10px; flex-wrap: wrap; background: var(--mention-bg); justify-content: center; }
-        button { padding: 12px 24px; border-radius: 12px; border: none; cursor: pointer; font-family: inherit; font-weight: 700; transition: 0.2s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-add { background: var(--primary); color: white; flex: 2; min-width: 150px; }
-        .btn-exp { background: #1e293b; color: white; flex: 1; min-width: 120px; }
+        button { padding: 12px 15px; border-radius: 12px; border: none; cursor: pointer; font-family: inherit; font-weight: 700; transition: 0.2s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-add { background: var(--primary); color: white; flex: 2; min-width: 140px; }
+        .btn-exp { background: linear-gradient(135deg, #1e293b, #334155); color: white; flex: 1; min-width: 130px; }
         .btn-rst { background: white; color: var(--danger); border: 1px solid var(--danger); }
         [data-theme="dark"] .btn-rst { background: transparent; }
-        .table-container { overflow-x: auto; padding: 0 15px 20px; }
+
+        .table-container { overflow-x: auto; padding: 0 10px 20px; }
         table { width: 100%; border-collapse: separate; border-spacing: 0 10px; min-width: 600px; }
-        th { color: #64748b; font-size: 0.9rem; padding-bottom: 10px; font-weight: 600; }
+        th { color: #64748b; font-size: 0.85rem; padding-bottom: 10px; font-weight: 600; }
         td { background: var(--input-bg); padding: 5px; border-top: 1px solid rgba(0,0,0,0.05); border-bottom: 1px solid rgba(0,0,0,0.05); }
+        
         html[dir="rtl"] td:first-child { border-radius: 0 10px 10px 0; border-right: 4px solid var(--primary); }
         html[dir="rtl"] td:last-child { border-radius: 10px 0 0 10px; }
         html[dir="ltr"] td:first-child { border-radius: 10px 0 0 10px; border-left: 4px solid var(--primary); border-right: none; }
         html[dir="ltr"] td:last-child { border-radius: 0 10px 10px 0; }
-        input, select { width: 100%; padding: 10px; border: 1px solid transparent; background: transparent; font-family: inherit; color: inherit; text-align: center; font-weight: 600; outline: none; }
+        
+        input, select { width: 100%; padding: 10px 5px; border: 1px solid transparent; background: transparent; font-family: inherit; color: inherit; text-align: center; font-weight: 600; outline: none; font-size: 0.95rem; }
         input:focus, select:focus { background: rgba(255,255,255,0.5); border-radius: 5px; }
         [data-theme="dark"] input:focus { background: rgba(0,0,0,0.2); }
         input:disabled { opacity: 0.3; cursor: not-allowed; }
+        
         #aboutModal { display: none; padding: 30px; background: var(--mention-bg); border-top: 3px solid var(--accent); animation: fadeIn 0.5s; position: relative; overflow: hidden; margin-top: 20px; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* --- تصميم كشف النقاط الرسمي (المخفي) --- */
+        /* --- تصميم كشف النقاط للـ PDF --- */
+        /* لن يظهر هذا العنصر على الشاشة، سيتم نسخه للـ PDF */
         #officialTranscript {
-            position: absolute; left: -9999px; top: 0; width: 780px; /* A4 Width approx */
-            background: white; color: black; padding: 40px; font-family: 'Amiri', 'Cairo', serif;
-            border: 1px solid #ddd; direction: rtl;
+            display: none; /* مخفي تماماً في الواجهة العادية */
         }
-        .trans-header { text-align: center; border-bottom: 3px double #000; padding-bottom: 20px; margin-bottom: 30px; position: relative; }
-        .trans-title { font-size: 2rem; font-weight: bold; margin: 10px 0; font-family: 'Amiri', serif; }
-        .trans-info { display: flex; justify-content: space-between; margin-bottom: 30px; font-size: 1.1rem; border: 1px solid #eee; padding: 15px; border-radius: 8px; }
-        .trans-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-family: 'Amiri', serif; }
-        .trans-table th { background: #f3f4f6; border: 1px solid #000; padding: 10px; font-weight: bold; }
-        .trans-table td { border: 1px solid #000; padding: 8px; text-align: center; }
-        .trans-footer { display: flex; justify-content: space-between; margin-top: 50px; font-family: 'Amiri', serif; }
-        .trans-sign { text-align: center; width: 200px; }
-        .trans-watermark {
+        
+        /* هذا التنسيق سيتم تطبيقه على النسخة التي يولدها html2pdf */
+        .pdf-container {
+            width: 100%;
+            padding: 40px;
+            background: white;
+            color: black;
+            font-family: 'Amiri', 'Cairo', serif;
+            position: relative;
+            direction: rtl;
+        }
+        .pdf-header { text-align: center; border-bottom: 3px double #000; padding-bottom: 20px; margin-bottom: 30px; }
+        .pdf-title { font-size: 24px; font-weight: bold; margin: 10px 0; }
+        .pdf-info { display: flex; justify-content: space-between; margin-bottom: 20px; border: 1px solid #ccc; padding: 15px; border-radius: 8px; font-size: 14px; }
+        .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 14px; }
+        .pdf-table th { background: #f3f4f6; border: 1px solid #000; padding: 8px; font-weight: bold; }
+        .pdf-table td { border: 1px solid #000; padding: 8px; text-align: center; }
+        .pdf-footer { display: flex; justify-content: space-between; margin-top: 50px; }
+        .pdf-sign { text-align: center; width: 200px; }
+        .pdf-watermark {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-10deg);
             width: 400px; height: 400px; opacity: 0.05; z-index: 0; pointer-events: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cdefs%3E%3Cpath id='textcircle' d='M250,400 a150,150 0 0,1 0,-300 a150,150 0 0,1 0,300 Z' transform='rotate(180,250,250)'/%3E%3C/defs%3E%3Cg style='fill:%23000; stroke:%23000;'%3E%3Ccircle cx='250' cy='250' r='240' style='fill:none; stroke-width:4;'/%3E%3Ccircle cx='250' cy='250' r='180' style='fill:none; stroke-width:3;'/%3E%3Ctext x='250' y='235' text-anchor='middle' style='font-size:85px; font-weight:900; font-family:serif; stroke:none;'%3ESMAIC%3C/text%3E%3C/g%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: center; background-size: contain;
         }
     </style>
 </head>
@@ -122,8 +141,8 @@
             <button onclick="toggleTheme()" class="icon-btn">🌙</button>
             <button onclick="toggleLang()" class="icon-btn">EN</button>
         </div>
-        <h1 id="txt-title" style="margin:0; font-size:1.8rem; font-weight: 800;">نادي علوم المادة للذكاء الاصطناعي</h1>
-        <h2 id="txt-subtitle" style="margin:5px 0 0; font-weight:400; opacity:0.9; font-size:1rem; letter-spacing: 1px;">SMAIC - GPA CALCULATOR 2026</h2>
+        <h1 id="txt-title" style="margin:0; font-size:1.6rem; font-weight: 800;">نادي علوم المادة للذكاء الاصطناعي</h1>
+        <h2 id="txt-subtitle" style="margin:5px 0 0; font-weight:400; opacity:0.9; font-size:0.9rem; letter-spacing: 1px;">SMAIC - GPA CALCULATOR 2026</h2>
     </header>
 
     <div id="welcome-msg"></div>
@@ -141,7 +160,7 @@
 
     <div class="controls" data-html2canvas-ignore="true">
         <button class="btn-add" onclick="addRow()"><span id="txt-add">+ إضافة مادة</span></button>
-        <button class="btn-exp" onclick="printOfficialTranscript()" style="background: linear-gradient(135deg, #1e293b, #334155);">📄 <span id="txt-print">تحميل PDF</span></button>
+        <button class="btn-exp" onclick="generatePDF()">📄 <span id="txt-print">تحميل كشف PDF</span></button>
         <button class="btn-rst" onclick="resetData()"><span id="txt-rst">تصفير</span></button>
     </div>
 
@@ -178,64 +197,66 @@
 </div>
 
 <div id="officialTranscript">
-    <div class="trans-watermark"></div>
-    <div class="trans-header">
-        <div class="trans-title" id="trans-uni">جامعة قاصدي مرباح ورقلة</div>
-        <div style="font-size: 1.2rem; margin-top: 5px;" id="trans-club">نادي علوم المادة للذكاء الاصطناعي (SMAIC)</div>
-        <div style="margin-top: 15px; font-weight: bold; text-decoration: underline;">كشف نقاط فصلي تقديري</div>
-    </div>
-    
-    <div class="trans-info">
-        <div><span id="trans-lbl-name">الطالب(ة):</span> <b id="printName">---</b></div>
-        <div><span id="trans-lbl-date">التاريخ:</span> <b id="printDate">---</b></div>
-    </div>
+    <div class="pdf-container">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cdefs%3E%3Cpath id='textcircle' d='M250,400 a150,150 0 0,1 0,-300 a150,150 0 0,1 0,300 Z' transform='rotate(180,250,250)'/%3E%3C/defs%3E%3Cg style='fill:%23000; stroke:%23000;'%3E%3Ccircle cx='250' cy='250' r='240' style='fill:none; stroke-width:4;'/%3E%3Ccircle cx='250' cy='250' r='180' style='fill:none; stroke-width:3;'/%3E%3Ctext x='250' y='235' text-anchor='middle' style='font-size:85px; font-weight:900; font-family:serif; stroke:none;'%3ESMAIC%3C/text%3E%3C/g%3E%3C/svg%3E" class="pdf-watermark">
+        
+        <div class="pdf-header">
+            <div class="pdf-title" id="trans-uni">جامعة قاصدي مرباح ورقلة</div>
+            <div style="font-size: 16px; margin-top: 5px;" id="trans-club">نادي علوم المادة للذكاء الاصطناعي (SMAIC)</div>
+            <div style="margin-top: 15px; font-weight: bold; text-decoration: underline;">كشف نقاط فصلي تقديري</div>
+        </div>
+        
+        <div class="pdf-info">
+            <div><span id="trans-lbl-name">الطالب(ة):</span> <b id="printName">---</b></div>
+            <div><span id="trans-lbl-date">التاريخ:</span> <b id="printDate">---</b></div>
+        </div>
 
-    <table class="trans-table">
-        <thead>
-            <tr>
-                <th id="tr-sub">المادة</th>
-                <th id="tr-avg">المعدل</th>
-                <th id="tr-coef">المعامل</th>
-                <th id="tr-res">القرار</th>
-            </tr>
-        </thead>
-        <tbody id="printBody"></tbody>
-        <tfoot>
-            <tr style="background: #f9fafb; font-weight: bold;">
-                <td style="text-align: right; padding-right: 15px;">المعدل العام (GPA)</td>
-                <td id="printGPA" style="font-size: 1.2rem;">0.00</td>
-                <td id="printCoef">0</td>
-                <td id="printMention">---</td>
-            </tr>
-        </tfoot>
-    </table>
+        <table class="pdf-table">
+            <thead>
+                <tr>
+                    <th id="tr-sub">المادة</th>
+                    <th id="tr-avg">المعدل</th>
+                    <th id="tr-coef">المعامل</th>
+                    <th id="tr-res">القرار</th>
+                </tr>
+            </thead>
+            <tbody id="printBody"></tbody>
+            <tfoot>
+                <tr style="background: #f9fafb; font-weight: bold;">
+                    <td style="text-align: right; padding-right: 15px;">المعدل العام (GPA)</td>
+                    <td id="printGPA" style="font-size: 16px;">0.00</td>
+                    <td id="printCoef">0</td>
+                    <td id="printMention">---</td>
+                </tr>
+            </tfoot>
+        </table>
 
-    <div class="trans-footer">
-        <div class="trans-sign">
-            <p>ختم النادي</p>
-            <div style="width: 100px; height: 100px; border: 2px dashed #ccc; margin: 10px auto; border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0.5;">
-                SMAIC
+        <div class="pdf-footer">
+            <div class="pdf-sign">
+                <p>ختم النادي</p>
+                <div style="width: 80px; height: 80px; border: 2px dashed #ccc; margin: 10px auto; border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0.5;">SMAIC</div>
+            </div>
+            <div class="pdf-sign">
+                <p>توقيع الطالب</p>
+                <br><br>..................
             </div>
         </div>
-        <div class="trans-sign">
-            <p>توقيع الطالب</p>
-            <br><br>..................
+        <div style="text-align: center; font-size: 10px; margin-top: 30px; opacity: 0.6;">
+            Generated by SMAIC Digital Platform - Dev: K. Boudjamaa
         </div>
-    </div>
-    <div style="text-align: center; font-size: 0.7rem; margin-top: 30px; opacity: 0.6;">
-        هذه الوثيقة تقديرية تم إنشاؤها عبر منصة SMAIC الرقمية - developed by K. Boudjamaa
     </div>
 </div>
 
 <script>
+    // --- بيانات اللغة ---
     const langData = {
         ar: {
-            title: "نادي علوم المادة للذكاء الاصطناعي", subtitle: "SMAIC - حاسبة المعدل الملكية 2026", welcome: "بوابة SMAIC الرقمية: حيث لا تُقاس قيمتك بما تحمله الورقة، بل بما يستطيعه عقلك..", add: "+ إضافة مادة", print: "تحميل PDF", rst: "تصفير", th_name: "المادة", th_exam: "الامتحان", th_td: "TD/TP", th_coef: "المعامل", th_mode: "النظام", about_btn: "📱 عن التطبيق ورؤية SMAIC", about_title: "📱 رفيقك الرقمي نحو التميز", about_text: "تم تطوير هذا التطبيق كإحدى مبادرات <b>نادي SMAIC</b>، ليكون جسراً يربط بين جهدك الأكاديمي وطموحك الميداني.", ph_name: "اسم المادة...", mode_mixed: "67% إمتحان + 33% TD", mode_70: "70% إمتحان + 30% TD", mode_60: "60% إمتحان + 40% TD", mode_50: "50% إمتحان + 50% TD", mode_100: "100% إمتحان", mode_100td: "100% TD/TP", sig: "الدرجاتُ أرقامٌ عابرة، و SMAIC وطنُ الخالدين.. مكانكَ بين العظماء.",
+            title: "نادي علوم المادة للذكاء الاصطناعي", subtitle: "SMAIC - حاسبة المعدل الملكية 2026", welcome: "بوابة SMAIC الرقمية: حيث لا تُقاس قيمتك بما تحمله الورقة، بل بما يستطيعه عقلك..", add: "+ إضافة مادة", print: "تحميل كشف PDF", rst: "تصفير", th_name: "المادة", th_exam: "الامتحان", th_td: "TD/TP", th_coef: "المعامل", th_mode: "النظام", about_btn: "📱 عن التطبيق ورؤية SMAIC", about_title: "📱 رفيقك الرقمي نحو التميز", about_text: "تم تطوير هذا التطبيق كإحدى مبادرات <b>نادي SMAIC</b>، ليكون جسراً يربط بين جهدك الأكاديمي وطموحك الميداني.", ph_name: "اسم المادة...", mode_mixed: "67% إمتحان + 33% TD", mode_70: "70% إمتحان + 30% TD", mode_60: "60% إمتحان + 40% TD", mode_50: "50% إمتحان + 50% TD", mode_100: "100% إمتحان", mode_100td: "100% TD/TP", sig: "الدرجاتُ أرقامٌ عابرة، و SMAIC وطنُ الخالدين.. مكانكَ بين العظماء.",
             tr_sub: "المادة", tr_avg: "المعدل", tr_coef: "المعامل", tr_res: "القرار", tr_pass: "مكتسب", tr_fail: "غير مكتسب",
             uni: "جامعة قاصدي مرباح ورقلة", club: "نادي علوم المادة للذكاء الاصطناعي (SMAIC)", lbl_name: "الطالب(ة):", lbl_date: "التاريخ:"
         },
         en: {
-            title: "Material Sciences & AI Club", subtitle: "SMAIC - ROYAL GPA CALCULATOR 2026", welcome: "SMAIC Digital Portal: Your value isn't measured by paper, but by what your mind can achieve.", add: "+ Add Subject", print: "Download PDF", rst: "Reset", th_name: "Subject", th_exam: "Exam", th_td: "TD/TP", th_coef: "Coef", th_mode: "Mode", about_btn: "📱 About App & SMAIC Vision", about_title: "📱 Your Digital Companion to Excellence", about_text: "Developed by <b>SMAIC</b>, this app is a bridge connecting your academic effort with your field ambition.", ph_name: "Subject Name...", mode_mixed: "67% Exam + 33% TD", mode_70: "70% Exam + 30% TD", mode_60: "60% Exam + 40% TD", mode_50: "50% Exam + 50% TD", mode_100: "100% Exam", mode_100td: "100% TD/TP", sig: "Grades are fleeting numbers, SMAIC is where legends are made.",
+            title: "Material Sciences & AI Club", subtitle: "SMAIC - ROYAL GPA CALCULATOR 2026", welcome: "SMAIC Digital Portal: Your value isn't measured by paper, but by what your mind can achieve.", add: "+ Add Subject", print: "Download Transcript PDF", rst: "Reset", th_name: "Subject", th_exam: "Exam", th_td: "TD/TP", th_coef: "Coef", th_mode: "Mode", about_btn: "📱 About App & SMAIC Vision", about_title: "📱 Your Digital Companion to Excellence", about_text: "Developed by <b>SMAIC</b>, this app is a bridge connecting your academic effort with your field ambition.", ph_name: "Subject Name...", mode_mixed: "67% Exam + 33% TD", mode_70: "70% Exam + 30% TD", mode_60: "60% Exam + 40% TD", mode_50: "50% Exam + 50% TD", mode_100: "100% Exam", mode_100td: "100% TD/TP", sig: "Grades are fleeting numbers, SMAIC is where legends are made.",
             tr_sub: "Subject", tr_avg: "Average", tr_coef: "Coef", tr_res: "Decision", tr_pass: "Acquired", tr_fail: "Not Acquired",
             uni: "University Kasdi Merbah Ouargla", club: "Material Sciences & AI Club (SMAIC)", lbl_name: "Student:", lbl_date: "Date:"
         }
@@ -265,19 +286,24 @@
     let welcomeTimer;
     let lastState = null;
 
+    // --- المنطق البرمجي ---
     function saveData() { 
-        localStorage.setItem('smaic_subjects', JSON.stringify(subjects));
-        localStorage.setItem('smaic_name', document.getElementById('studentName').value);
+        try {
+            localStorage.setItem('smaic_subjects', JSON.stringify(subjects));
+            localStorage.setItem('smaic_name', document.getElementById('studentName').value);
+        } catch(e) {}
     }
     
     function loadData() {
-        const saved = localStorage.getItem('smaic_subjects');
-        if (saved) subjects = JSON.parse(saved);
-        const name = localStorage.getItem('smaic_name');
-        if (name) {
-            studentName = name;
-            document.getElementById('studentName').value = name;
-        }
+        try {
+            const saved = localStorage.getItem('smaic_subjects');
+            if (saved) subjects = JSON.parse(saved);
+            const name = localStorage.getItem('smaic_name');
+            if (name) {
+                studentName = name;
+                document.getElementById('studentName').value = name;
+            }
+        } catch(e) {}
     }
 
     window.onload = function() {
@@ -370,9 +396,14 @@
     }
 
     function updateData(index, field, value) {
-        if(field === 'name' || field === 'mode') {
-            subjects[index][field] = value;
-            if(field === 'mode') renderTable();
+        if(field === 'name') {
+            subjects[index].name = value;
+        } else if (field === 'mode') {
+            subjects[index].mode = value;
+            // تصفير القيم غير المستخدمة لضمان دقة الحساب
+            if(value === '100exam') subjects[index].td = null;
+            if(value === '100td') subjects[index].exam = null;
+            renderTable();
         } else {
             subjects[index][field] = value === "" ? null : parseFloat(value);
         }
@@ -387,7 +418,7 @@
     }
 
     function resetData() {
-        if(confirm(curLang === 'ar' ? "هل أنت متأكد؟" : "Are you sure?")) {
+        if(confirm(curLang === 'ar' ? "هل أنت متأكد؟ سيتم حذف جميع البيانات." : "Are you sure? All data will be cleared.")) {
             subjects = [{name: "", exam: null, td: null, coef: 1, mode: "mixed"}];
             document.getElementById('studentName').value = "";
             localStorage.removeItem('smaic_subjects');
@@ -404,7 +435,9 @@
         let totalWeighted = 0, totalCoef = 0, hasData = false;
         
         subjects.forEach(s => {
+            // Check if user entered ANY data
             if(s.exam !== null || s.td !== null) hasData = true;
+            
             let m = 0; const ex = s.exam || 0; const td = s.td || 0;
             if (s.mode === 'mixed') m = ex * 0.67 + td * 0.33;
             else if (s.mode === '7030') m = ex * 0.70 + td * 0.30;
@@ -412,6 +445,7 @@
             else if (s.mode === '5050') m = ex * 0.50 + td * 0.50;
             else if (s.mode === '100td') m = td;
             else m = ex;
+            
             totalWeighted += m * (s.coef||1);
             totalCoef += (s.coef||1);
             s.calculatedAvg = m;
@@ -449,26 +483,26 @@
         let cat;
         if (gpa >= 17) cat = q.diamond; else if (gpa >= 15) cat = q.gold; else if (gpa >= 12) cat = q.silver; else if (gpa >= 10) cat = q.resilience; else cat = q.challenge;
 
-        if(quoteBox.style.display === 'none' || Math.random() > 0.8) {
-            const randomText = cat.text[Math.floor(Math.random() * cat.text.length)];
-            const sig = langData[curLang].sig;
-            
-            quoteBox.innerHTML = `
-                <span class="badge-title">${cat.title}</span>
-                <div class="quote-text">"${randomText}"</div>
-                <div class="club-signature">${sig}</div>
-            `;
-            
-            if(gpa >= 15) quoteBox.style.borderColor = "#fbbf24"; else if(gpa < 10) quoteBox.style.borderColor = "#ef4444"; else quoteBox.style.borderColor = "#4f46e5";
-            if(curLang === 'ar') { quoteBox.style.borderRightWidth = "6px"; quoteBox.style.borderLeftWidth = "0"; } 
-            else { quoteBox.style.borderRightWidth = "0"; quoteBox.style.borderLeftWidth = "6px"; }
-        }
+        // Force update quote even if div is visible to keep it fresh
+        const randomText = cat.text[Math.floor(Math.random() * cat.text.length)];
+        const sig = langData[curLang].sig;
+        
+        quoteBox.innerHTML = `
+            <span class="badge-title">${cat.title}</span>
+            <div class="quote-text">"${randomText}"</div>
+            <div class="club-signature">${sig}</div>
+        `;
+        
+        if(gpa >= 15) quoteBox.style.borderColor = "#fbbf24"; else if(gpa < 10) quoteBox.style.borderColor = "#ef4444"; else quoteBox.style.borderColor = "#4f46e5";
+        if(curLang === 'ar') { quoteBox.style.borderRightWidth = "6px"; quoteBox.style.borderLeftWidth = "0"; } 
+        else { quoteBox.style.borderRightWidth = "0"; quoteBox.style.borderLeftWidth = "6px"; }
+        
         quoteBox.style.display = 'block';
     }
 
-    // --- دالة إنشاء الـ PDF ---
-    function printOfficialTranscript() {
-        const student = document.getElementById('studentName').value || (curLang==='ar'?'فاعل خير':'Anonymous');
+    // --- توليد PDF الرسمي ---
+    function generatePDF() {
+        const student = document.getElementById('studentName').value || (curLang==='ar'?'طالب(ة)':'Student');
         document.getElementById('printName').innerText = student;
         document.getElementById('printDate').innerText = new Date().toLocaleDateString();
         
@@ -498,24 +532,31 @@
         document.getElementById('printCoef').innerText = totalC;
         document.getElementById('printMention').innerText = gpa >= 10 ? langData[curLang].tr_pass : langData[curLang].tr_fail;
 
-        // إعداد عنصر مؤقت للطباعة لتجنب مشاكل العرض
+        // PDF Settings
         const element = document.getElementById('officialTranscript');
         const clone = element.cloneNode(true);
+        
+        // Prepare the clone for PDF generation (Visible, block)
+        clone.style.display = 'block';
+        clone.style.width = '780px'; // Fit A4
         clone.style.position = 'absolute';
         clone.style.left = '0';
         clone.style.top = '0';
-        clone.style.zIndex = '-1';
+        clone.style.zIndex = '-9999'; // Hide behind everything
         document.body.appendChild(clone);
 
         const opt = {
-          margin: 10,
-          filename: `SMAIC-Transcript-${student}.pdf`,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            margin: 10,
+            filename: `SMAIC-Transcript-${student}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
         html2pdf().set(opt).from(clone).save().then(() => {
+            document.body.removeChild(clone); // Cleanup
+        }).catch(err => {
+            alert("Error generating PDF");
             document.body.removeChild(clone);
         });
     }
