@@ -1,256 +1,300 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMAIC Official Transcript</title>
+    <title>SMAIC - Official Transcript Generator</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
-        /* ==================== تنسيق الواجهة (الادخال) ==================== */
-        body { font-family: 'Cairo', sans-serif; background: #f3f4f6; margin: 0; padding: 20px; }
-        
-        .input-container {
-            max-width: 800px; margin: 0 auto; background: white; padding: 20px;
-            border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        /* ==================== تنسيقات الواجهة الرئيسية ==================== */
+        :root {
+            --primary: #4f46e5; 
+            --bg-gradient: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+            --card-bg: rgba(255, 255, 255, 0.98); 
+            --text-main: #1e293b;
+            --font-main: 'Cairo', sans-serif;
         }
 
-        .controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        button { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: bold; color: white; flex: 1; }
-        .btn-add { background: #4f46e5; }
-        .btn-print { background: #dc2626; }
-        .btn-rst { background: #fff; color: #dc2626; border: 1px solid #dc2626; }
+        body { font-family: var(--font-main); background: var(--bg-gradient); margin: 0; padding: 20px; color: var(--text-main); min-height: 100vh; }
+        
+        .container {
+            width: 100%; max-width: 900px; background: var(--card-bg);
+            border-radius: 20px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden; padding-bottom: 20px;
+        }
 
+        header { background: var(--primary); color: white; padding: 30px 20px; text-align: center; }
+        
+        .score-board { text-align: center; padding: 30px; background: #f8fafc; margin: 20px; border-radius: 15px; border: 1px dashed #cbd5e1; }
+        .gpa-num { font-size: 4rem; font-weight: 900; color: var(--primary); display: block; line-height: 1; }
+
+        .controls { display: flex; gap: 12px; justify-content: center; padding: 10px 20px 20px; flex-wrap: wrap; }
+        button { padding: 12px 24px; border-radius: 10px; border: none; cursor: pointer; font-family: inherit; font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        
+        .btn-add { background: var(--primary); color: white; }
+        .btn-pdf { background: #059669; color: white; }
+        .btn-rst { background: #ef4444; color: white; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        .table-area { padding: 0 20px; overflow-x: auto; }
         table.input-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        table.input-table th { background: #f8fafc; padding: 10px; text-align: right; color: #64748b; font-size: 0.9rem; }
-        table.input-table td { border-bottom: 1px solid #e2e8f0; padding: 5px; }
-        input { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; text-align: center; font-family: inherit; }
+        table.input-table th { padding: 12px; color: #64748b; font-size: 14px; text-align: center; border-bottom: 2px solid #e2e8f0; }
+        table.input-table td { padding: 10px; border-bottom: 1px solid #f1f5f9; }
+        
+        input { width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; text-align: center; font-family: inherit; font-size: 15px; transition: 0.2s; }
+        input:focus { border-color: var(--primary); outline: none; background: #fefeff; }
 
-        /* ==================== تنسيق كشف النقاط (A4 صارم) ==================== */
+        /* ==================== تنسيقات كشف النقاط (PDF) ==================== */
         #transcript-template {
-            display: none; /* مخفي في الشاشة */
-            width: 210mm; height: 296mm; /* A4 size */
-            background: white; color: black;
-            font-family: 'Amiri', serif;
-            padding: 15mm 15mm 10mm 15mm; /* هوامش الصفحة */
-            box-sizing: border-box;
-            position: relative;
-            direction: rtl;
+            display: none; width: 210mm; min-height: 297mm; background: white; color: #000;
+            font-family: 'Amiri', serif; padding: 15mm; box-sizing: border-box; position: relative; direction: rtl;
+            border: 8px double #444;
         }
 
-        /* الرأس */
-        .tr-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
-        .tr-header h5 { margin: 2px 0; font-weight: normal; font-size: 12px; }
-        .tr-header h2 { margin: 10px 0 5px; font-size: 22px; font-weight: bold; text-decoration: underline; }
-        .tr-year { font-size: 14px; margin-bottom: 5px; }
-
-        /* معلومات الطالب (شبكة مدمجة) */
-        .student-info { 
-            border: 1px solid #000; padding: 8px; margin-bottom: 15px; 
-            display: flex; flex-wrap: wrap; justify-content: space-between; font-size: 14px;
+        /* العلامة المائية */
+        #transcript-template::after {
+            content: "SMAIC CLUB"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 120px; color: rgba(0,0,0,0.02); pointer-events: none; z-index: 0;
         }
-        .info-group { width: 48%; margin-bottom: 4px; display: flex; }
-        .info-label { font-weight: bold; width: 80px; }
-        .info-val { border-bottom: 1px dotted #999; flex: 1; text-align: center; }
 
-        /* الجدول الرسمي */
-        .official-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 20px; }
-        .official-table th, .official-table td { border: 1px solid #000; padding: 6px; text-align: center; }
-        .official-table th { background-color: #f0f0f0; font-weight: bold; border-bottom: 2px solid #000; }
+        .tr-header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 20px; }
+        .tr-header h2 { margin: 15px 0; font-size: 26px; text-decoration: underline; }
         
-        /* شريط النتائج (بديل المربعات الكبيرة) */
-        .results-bar {
-            display: flex; border: 2px solid #000; margin-bottom: 30px;
-        }
-        .res-segment {
-            flex: 1; border-left: 1px solid #000; padding: 10px; text-align: center;
-        }
-        .res-segment:last-child { border-left: none; }
-        .res-label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; background: #eee; padding: 2px; }
-        .res-value { font-size: 18px; font-weight: bold; }
+        .student-info-grid { width: 100%; margin-bottom: 25px; border-collapse: collapse; }
+        .student-info-grid td { padding: 6px 10px; font-size: 17px; }
+        .info-label { font-weight: bold; width: 15%; }
+        .info-value { border-bottom: 1px dotted #000; width: 35%; }
 
-        /* التذييل والتوقيعات */
-        .signatures { display: flex; justify-content: space-between; padding: 0 20px; margin-top: 20px; }
-        .sig-block { text-align: center; width: 40%; }
-        .sig-title { font-weight: bold; text-decoration: underline; margin-bottom: 60px; font-size: 14px; }
-        
-        /* تذييل الصفحة السفلي */
-        .page-footer {
-            position: absolute; bottom: 10mm; left: 0; width: 100%;
-            text-align: center; font-size: 10px; border-top: 1px solid #ccc; padding-top: 5px;
-        }
+        .official-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; position: relative; z-index: 1; }
+        .official-table th { background: #eeeeee; border: 1.5px solid #000; padding: 10px; font-size: 16px; }
+        .official-table td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 15px; }
+
+        .results-summary { display: flex; justify-content: flex-start; margin-top: 20px; }
+        .res-box { border: 2px solid #000; padding: 10px; width: 200px; text-align: center; margin-left: -2px; }
+        .res-box label { display: block; font-weight: bold; border-bottom: 1px solid #000; margin-bottom: 5px; padding-bottom: 5px; }
+        .res-box div { font-size: 22px; font-weight: bold; }
+
+        .tr-footer { margin-top: 50px; display: flex; justify-content: space-between; }
+        .sig { text-align: center; width: 250px; }
     </style>
 </head>
 <body>
 
-<div class="input-container">
-    <h2 style="text-align:center; color:#1e293b;">بيانات كشف النقاط</h2>
-    <div class="controls">
-        <button class="btn-add" onclick="addRow()">+ مادة</button>
-        <button class="btn-print" onclick="printPDF()">🖨️ طباعة الكشف الرسمي</button>
-        <button class="btn-rst" onclick="reset()">تصفير</button>
+<div class="container">
+    <header>
+        <h1 style="margin:0; font-size: 1.8rem; font-weight: 900;">SMAIC GPA CALCULATOR</h1>
+        <p style="margin:5px 0 0; opacity:0.9">نادي علوم المادة للذكاء الاصطناعي - جامعة ورقلة</p>
+    </header>
+
+    <div class="score-board">
+        <span style="color: #64748b; font-weight: bold;">المعدل الفصلي التقديري</span>
+        <span class="gpa-num" id="displayGPA">0.00</span>
+        <div id="displayDecision" style="font-weight:900; margin-top:10px; font-size: 1.2rem;">--</div>
     </div>
-    <table class="input-table">
-        <thead>
-            <tr>
-                <th>المادة</th>
-                <th width="15%">المعامل</th>
-                <th width="15%">الامتحان</th>
-                <th width="15%">TD/TP</th>
-                <th width="5%"></th>
-            </tr>
-        </thead>
-        <tbody id="inputBody"></tbody>
-    </table>
+
+    <div class="controls">
+        <button class="btn-add" onclick="addRow()">➕ إضافة مادة</button>
+        <button class="btn-pdf" onclick="generateTranscript()">📄 استخراج كشف النقاط PDF</button>
+        <button class="btn-rst" onclick="resetAll()">🗑️ تصفير</button>
+    </div>
+
+    <div class="table-area">
+        <table class="input-table">
+            <thead>
+                <tr>
+                    <th width="40%">المقياس</th>
+                    <th width="15%">الامتحان</th>
+                    <th width="15%">الرصيد/TD</th>
+                    <th width="15%">المعامل</th>
+                    <th width="10%">حذف</th>
+                </tr>
+            </thead>
+            <tbody id="inputBody"></tbody>
+        </table>
+    </div>
 </div>
 
 <div id="transcript-template">
     <div class="tr-header">
-        <h5>الجمهورية الجزائرية الديمقراطية الشعبية</h5>
-        <h5>وزارة التعليم العالي والبحث العلمي</h5>
-        <h5>جامعة قاصدي مرباح ورقلة - UKMO</h5>
-        <h2>كشف نقاط (Relevé de Notes)</h2>
-        <div class="tr-year">السنة الجامعية: 2025 / 2026</div>
+        <h4 style="margin:0">الجمهورية الجزائرية الديمقراطية الشعبية</h4>
+        <h4 style="margin:5px">وزارة التعليم العالي والبحث العلمي</h4>
+        <div style="display:flex; justify-content: space-between; margin: 15px 0;">
+            <span>جامعة قاصدي مرباح ورقلة</span>
+            <span>كلية علوم المادة</span>
+        </div>
+        <h2>كشف النقاط (Relevé de Notes)</h2>
+        <div style="font-weight: bold;">السنة الجامعية: 2025 / 2026</div>
     </div>
 
-    <div class="student-info">
-        <div class="info-group"><span class="info-label">الاسم واللقب:</span><span class="info-val" id="p-name"></span></div>
-        <div class="info-group"><span class="info-label">رقم التسجيل:</span><span class="info-val" id="p-id"></span></div>
-        <div class="info-group"><span class="info-label">الكلية:</span><span class="info-val">العلوم التطبيقية</span></div>
-        <div class="info-group"><span class="info-label">التخصص:</span><span class="info-val" id="p-spec"></span></div>
-    </div>
+    <table class="student-info-grid">
+        <tr>
+            <td class="info-label">الاسم واللقب:</td>
+            <td class="info-value" id="pdf-name"></td>
+            <td class="info-label">المستوى:</td>
+            <td class="info-value">ماستر / ليسانس</td>
+        </tr>
+        <tr>
+            <td class="info-label">رقم التسجيل:</td>
+            <td class="info-value">26/SMAIC/001</td>
+            <td class="info-label">التخصص:</td>
+            <td class="info-value" id="pdf-spec"></td>
+        </tr>
+    </table>
 
     <table class="official-table">
         <thead>
             <tr>
-                <th width="5%">رقم</th>
-                <th width="40%">المقياس (Module)</th>
-                <th width="10%">المعامل</th>
-                <th width="10%">الرصيد</th>
-                <th width="10%">الامتحان</th>
-                <th width="10%">TD</th>
-                <th width="15%">المعدل</th>
+                <th>المادة / المقياس</th>
+                <th width="70">المعامل</th>
+                <th width="70">الرصيد</th>
+                <th width="70">الامتحان</th>
+                <th width="70">التقييم المستمر</th>
+                <th width="90">المعدل</th>
             </tr>
         </thead>
-        <tbody id="p-table-body"></tbody>
+        <tbody id="pdf-table-body"></tbody>
     </table>
 
-    <div class="results-bar">
-        <div class="res-segment">
-            <span class="res-label">مجموع المعاملات</span>
-            <span class="res-value" id="p-coef"></span>
+    <div class="results-summary">
+        <div class="res-box">
+            <label>مجموع المعاملات</label>
+            <div id="pdf-total-coef">0</div>
         </div>
-        <div class="res-segment">
-            <span class="res-label">المعدل الفصلي (Moyenne)</span>
-            <span class="res-value" id="p-gpa"></span>
+        <div class="res-box" style="background:#f0f0f0">
+            <label>المعدل العام</label>
+            <div id="pdf-final-avg">0.00</div>
         </div>
-        <div class="res-segment">
-            <span class="res-label">القرار (Décision)</span>
-            <span class="res-value" id="p-decision"></span>
-        </div>
-    </div>
-
-    <div class="signatures">
-        <div class="sig-block">
-            <div class="sig-title">إمضاء الطالب(ة)</div>
-        </div>
-        <div class="sig-block">
-            <div style="font-size:12px; margin-bottom:5px;">حرر بورقلة في: <span id="p-date"></span></div>
-            <div class="sig-title">رئيس القسم / الإدارة</div>
+        <div class="res-box">
+            <label>القرار</label>
+            <div id="pdf-decision">--</div>
         </div>
     </div>
 
-    <div class="page-footer">
-        وثيقة مستخرجة عبر نظام نادي SMAIC الرقمي. لا يعتد بها إلا بعد المصادقة الرسمية. <br>
-        SMAIC Club - Digital Section | Univ Ouargla
+    <div class="tr-footer">
+        <div class="sig">
+            <p>توقيع الطالب(ة)</p>
+        </div>
+        <div class="sig">
+            <p>ورقلة في: <span id="pdf-date"></span></p>
+            <p style="font-weight: bold; text-decoration: underline; margin-top: 10px;">رئيس القسم / الإدارة</p>
+        </div>
+    </div>
+
+    <div style="position: absolute; bottom: 10mm; left: 0; width: 100%; text-align: center; font-size: 11px; color: #666;">
+        هذه الوثيقة مستخرجة آلياً عبر منصة SMAIC الرقمية ولا تعوض الكشف الأصلي المختوم.
     </div>
 </div>
 
 <script>
+    // البيانات الافتراضية
     let subjects = [
-        {name: "فيزياء الكم", coef: 3, exam: 14, td: 16},
-        {name: "رياضيات للمهندسين", coef: 2, exam: 12, td: 13},
-        {name: "برمجة C++", coef: 2, exam: 17, td: 18}
+        {name: "ميكانيك الكم", exam: null, td: null, coef: 3},
+        {name: "فيزياء إحصائية", exam: null, td: null, coef: 2}
     ];
 
-    function init() {
-        renderInput();
-    }
+    window.onload = function() { renderInputTable(); calculate(); };
 
-    function renderInput() {
+    function renderInputTable() {
         const tbody = document.getElementById('inputBody');
         tbody.innerHTML = subjects.map((s, i) => `
             <tr>
-                <td><input value="${s.name}" onchange="upd(${i},'name',this.value)"></td>
-                <td><input type="number" value="${s.coef}" onchange="upd(${i},'coef',this.value)"></td>
-                <td><input type="number" value="${s.exam}" onchange="upd(${i},'exam',this.value)"></td>
-                <td><input type="number" value="${s.td}" onchange="upd(${i},'td',this.value)"></td>
-                <td><button onclick="del(${i})" style="color:red; background:none;">✕</button></td>
+                <td><input type="text" value="${s.name}" oninput="update(${i}, 'name', this.value)" placeholder="اسم المادة"></td>
+                <td><input type="number" value="${s.exam || ''}" oninput="update(${i}, 'exam', this.value)" placeholder="00"></td>
+                <td><input type="number" value="${s.td || ''}" oninput="update(${i}, 'td', this.value)" placeholder="00"></td>
+                <td><input type="number" value="${s.coef}" oninput="update(${i}, 'coef', this.value)"></td>
+                <td style="text-align:center"><button onclick="removeSubject(${i})" style="color:#ef4444; background:none; font-size:18px;">✕</button></td>
             </tr>
         `).join('');
     }
 
-    function addRow() { subjects.push({name: "", coef: 1, exam: 0, td: 0}); renderInput(); }
-    function del(i) { subjects.splice(i, 1); renderInput(); }
-    function upd(i, k, v) { subjects[i][k] = k==='name'?v:parseFloat(v); }
-    function reset() { subjects=[]; renderInput(); }
+    function addRow() { subjects.push({name: "", exam: null, td: null, coef: 1}); renderInputTable(); }
+    
+    function removeSubject(i) { 
+        if(subjects.length > 1) { subjects.splice(i, 1); renderInputTable(); calculate(); }
+    }
+    
+    function update(i, field, val) {
+        if(field === 'name') subjects[i][field] = val;
+        else subjects[i][field] = val === "" ? null : parseFloat(val);
+        calculate();
+    }
 
-    function printPDF() {
-        // 1. جمع البيانات
-        const name = prompt("اسم الطالب:", "كورد بوجمعة");
-        if(!name) return;
-        const spec = prompt("التخصص:", "فيزياء كهروضوئية");
-        
-        // 2. تعبئة القالب
-        document.getElementById('p-name').innerText = name;
-        document.getElementById('p-id').innerText = "2026/" + Math.floor(Math.random()*10000); // رقم عشوائي للمحاكاة
-        document.getElementById('p-spec').innerText = spec;
-        document.getElementById('p-date').innerText = new Date().toLocaleDateString('en-GB');
-
-        const tbody = document.getElementById('p-table-body');
-        tbody.innerHTML = "";
-        
-        let totalCoef = 0, totalWeighted = 0;
-        
-        subjects.forEach((s, idx) => {
-            let avg = (s.exam * 0.6) + (s.td * 0.4);
-            if(!s.td) avg = s.exam;
-            
-            let credit = avg >= 10 ? s.coef : 0; // محاكاة بسيطة للرصيد
+    function calculate() {
+        let totalScore = 0; let totalCoef = 0;
+        subjects.forEach(s => {
+            const ex = s.exam || 0; const td = s.td || 0;
+            let avg = (s.td === null) ? ex : (ex * 0.6 + td * 0.4);
+            totalScore += avg * s.coef;
             totalCoef += s.coef;
-            totalWeighted += avg * s.coef;
+        });
+        
+        const gpa = totalCoef > 0 ? (totalScore / totalCoef).toFixed(2) : "0.00";
+        document.getElementById('displayGPA').innerText = gpa;
+        
+        const decisionEl = document.getElementById('displayDecision');
+        if(gpa >= 10) {
+            decisionEl.innerText = "ناجح (ADMIS)";
+            decisionEl.style.color = "#059669";
+        } else {
+            decisionEl.innerText = "مؤجل (AJOURNÉ)";
+            decisionEl.style.color = "#ef4444";
+        }
+    }
 
-            tbody.innerHTML += `
+    function resetAll() {
+        if(confirm("هل أنت متأكد من مسح جميع البيانات؟")) {
+            subjects = [{name: "", exam: null, td: null, coef: 1}];
+            renderInputTable(); calculate();
+        }
+    }
+
+    function generateTranscript() {
+        const name = prompt("أدخل الاسم واللقب:");
+        if(!name) return;
+        const spec = prompt("أدخل التخصص:", "فيزياء");
+
+        document.getElementById('pdf-name').innerText = name;
+        document.getElementById('pdf-spec').innerText = spec;
+        document.getElementById('pdf-date').innerText = new Date().toLocaleDateString('ar-DZ');
+
+        const pdfBody = document.getElementById('pdf-table-body');
+        pdfBody.innerHTML = "";
+        let totalCoef = 0;
+
+        subjects.forEach(s => {
+            const ex = s.exam || 0; const td = s.td || 0;
+            let avg = (s.td === null) ? ex : (ex * 0.6 + td * 0.4);
+            let credit = avg >= 10 ? s.coef * 2 : 0; // افتراض رصيد
+            totalCoef += s.coef;
+
+            pdfBody.innerHTML += `
                 <tr>
-                    <td>${idx+1}</td>
-                    <td style="text-align:right; font-weight:bold;">${s.name}</td>
+                    <td style="text-align:right; font-weight:bold;">${s.name || '---'}</td>
                     <td>${s.coef}</td>
                     <td>${credit}</td>
-                    <td>${s.exam}</td>
-                    <td>${s.td}</td>
-                    <td>${avg.toFixed(2)}</td>
+                    <td>${s.exam || '0'}</td>
+                    <td>${s.td || '-'}</td>
+                    <td style="font-weight:bold;">${avg.toFixed(2)}</td>
                 </tr>
             `;
         });
 
-        const gpa = totalCoef ? (totalWeighted / totalCoef).toFixed(2) : "0.00";
-        document.getElementById('p-coef').innerText = totalCoef;
-        document.getElementById('p-gpa').innerText = gpa;
-        
-        const decision = parseFloat(gpa) >= 10 ? "ناجح (Admis)" : "مؤجل (Ajourné)";
-        document.getElementById('p-decision').innerText = decision;
+        document.getElementById('pdf-total-coef').innerText = totalCoef;
+        const finalGPA = document.getElementById('displayGPA').innerText;
+        document.getElementById('pdf-final-avg').innerText = finalGPA;
+        document.getElementById('pdf-decision').innerText = parseFloat(finalGPA) >= 10 ? "ناجح" : "مؤجل";
 
-        // 3. التصدير
         const element = document.getElementById('transcript-template');
         element.style.display = 'block';
 
         const opt = {
-            margin: 0, // الهوامش صفر لأننا ضبطناها داخل CSS القالب
-            filename: 'Transcript.pdf',
+            margin: 0,
+            filename: `SMAIC_Releve_${name}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -260,8 +304,6 @@
             element.style.display = 'none';
         });
     }
-
-    init();
 </script>
 
 </body>
