@@ -1,476 +1,193 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" data-theme="light">
 <head>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-06Q1R1WM5K"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-06Q1R1WM5K');
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMAIC - GPA Calculator</title>
+    <title>SMAIC - GPA Calculator | Royal Edition</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
 
     <style>
-        /* --- Color Variables --- */
         :root {
-            /* Light Theme (Default) */
             --primary: #4f46e5;
             --primary-dark: #4338ca;
-            --accent: #8b5cf6;
+            --accent: #fbbf24;
             --bg-body: #f0f4ff;
             --bg-gradient: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
             --card-bg: rgba(255, 255, 255, 0.98);
             --text-main: #1e293b;
-            --text-light: #64748b;
             --input-bg: #f8fafc;
-            --input-border: #e2e8f0;
-            --input-focus-bg: #ffffff;
-            --table-row-bg: #ffffff;
-            --table-row-shadow: rgba(0,0,0,0.04);
-            --border-color: #f1f5f9;
-            --dashboard-bg: #ffffff;
-            --mention-bg: #f8fafc;
-            --controls-bg: #f8fafc;
-            --footer-bg: #f8fafc;
-            
-            --success: #10b981;
-            --warning: #f59e0b;
+            --mention-bg: #f1f5f9;
             --danger: #ef4444;
+            --success: #10b981;
+            --font-ar: 'Cairo', sans-serif;
+            --font-en: 'Poppins', sans-serif;
         }
 
-        /* Dark Theme Overrides */
         [data-theme="dark"] {
-            --primary: #6366f1; /* Slightly lighter for dark mode contrast */
-            --primary-dark: #4f46e5;
+            --primary: #6366f1;
             --bg-body: #0f172a;
             --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            --card-bg: rgba(30, 41, 59, 0.95); /* Slate 800 */
-            --text-main: #f1f5f9; /* Slate 100 */
-            --text-light: #94a3b8; /* Slate 400 */
-            --input-bg: #334155; /* Slate 700 */
-            --input-border: #475569;
-            --input-focus-bg: #1e293b;
-            --table-row-bg: #1e293b; /* Slate 900 */
-            --table-row-shadow: rgba(0,0,0,0.2);
-            --border-color: #334155;
-            --dashboard-bg: rgba(30, 41, 59, 0.5);
+            --card-bg: rgba(30, 41, 59, 0.98);
+            --text-main: #f1f5f9;
+            --input-bg: #334155;
             --mention-bg: #1e293b;
-            --controls-bg: rgba(15, 23, 42, 0.3);
-            --footer-bg: rgba(15, 23, 42, 0.3);
         }
 
         body {
-            font-family: 'Cairo', sans-serif;
+            font-family: var(--font-ar);
             background: var(--bg-gradient);
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
+            margin: 0; padding: 20px;
             color: var(--text-main);
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            transition: background 0.3s ease, color 0.3s ease;
+            min-height: 100vh;
+            transition: 0.3s;
         }
-
-        html[dir="ltr"] body {
-            font-family: 'Segoe UI', 'Roboto', 'Cairo', sans-serif;
-        }
+        
+        /* تغيير الخط عند التحويل للإنجليزية */
+        html[lang="en"] body { font-family: var(--font-en); }
 
         .container {
-            width: 100%;
-            max-width: 950px;
+            width: 100%; max-width: 900px;
             background: var(--card-bg);
             border-radius: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            margin: 0 auto;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
             overflow: hidden;
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            margin-top: 20px;
-            margin-bottom: 40px;
-            animation: slideIn 0.6s ease-out;
             position: relative;
-            transition: background-color 0.3s ease;
+            z-index: 1;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        header {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white;
-            padding: 40px 20px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Buttons Container in Header */
-        .header-actions {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            display: flex;
-            gap: 10px;
-            z-index: 50;
-        }
-
-        html[dir="ltr"] .header-actions {
-            left: auto;
-            right: 20px;
-        }
-
-        .action-btn {
-            background: rgba(255, 255, 255, 0.25);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: inherit;
-        }
-
-        .action-btn:hover {
-            background: white;
-            color: var(--primary);
-        }
-
-        .theme-icon { font-size: 1.1rem; line-height: 0; }
-
-        header::before, header::after {
+        /* الختم الملكي */
+        .container::after {
             content: '';
             position: absolute;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
+            top: 50%; left: 50%;
+            width: 450px; height: 450px;
+            transform: translate(-50%, -50%) rotate(-10deg);
+            opacity: 0.08;
+            z-index: -1;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cdefs%3E%3Cpath id='textcircle' d='M250,400 a150,150 0 0,1 0,-300 a150,150 0 0,1 0,300 Z' transform='rotate(180,250,250)'/%3E%3C/defs%3E%3Cg style='fill:%23cba135; stroke:%23cba135;'%3E%3Ccircle cx='250' cy='250' r='240' style='fill:none; stroke-width:4; opacity: 0.7;'/%3E%3Ccircle cx='250' cy='250' r='230' style='fill:none; stroke-width:1; opacity: 0.5;'/%3E%3Ccircle cx='250' cy='250' r='180' style='fill:none; stroke-width:3; opacity: 0.7;'/%3E%3Ctext x='250' y='235' text-anchor='middle' style='font-size:85px; font-weight:900; font-family:serif; stroke:none;'%3ESMAIC%3C/text%3E%3Ctext x='250' y='285' text-anchor='middle' style='font-size:28px; font-weight:bold; letter-spacing:8px; stroke:none; opacity:0.8;'%3E2026%3C/text%3E%3Ctext dy='-20' style='stroke:none;'%3E%3CtextPath xlink:href='%23textcircle' startOffset='50%25' text-anchor='middle' style='font-size:26px; font-weight:bold; letter-spacing:2px; font-family: sans-serif;'%3E&#1580;&#1575;&#1605;&#1593;&#1577; &#1608;&#1585;&#1602;&#1604;&#1577; &#9733; PHYSICS %26 AI CLUB &#9733; &#1606;&#1575;&#1583;&#1610; &#1593;&#1604;&#1608;&#1605; &#1575;&#1604;&#1605;&#1575;&#1583;&#1577;%3C/textPath%3E%3C/text%3E%3C/g%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            mix-blend-mode: multiply;
         }
-        header::before { top: -50%; left: -10%; width: 300px; height: 300px; }
-        header::after { bottom: -50%; right: -10%; width: 200px; height: 200px; }
+        [data-theme="dark"] .container::after { filter: invert(1); opacity: 0.05; }
 
-        header h1 {
-            margin: 0;
-            font-size: 1.8rem;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            position: relative; z-index: 1;
-        }
-
-        header h2 {
-            margin: 8px 0 0;
-            font-size: 1.1rem;
-            font-weight: 400;
-            opacity: 0.95;
-            position: relative; z-index: 1;
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white; padding: 30px; text-align: center; position: relative;
         }
 
-        .dashboard {
-            padding: 30px;
-            text-align: center;
-            background: var(--dashboard-bg);
-            border-bottom: 1px solid var(--border-color);
-            transition: background-color 0.3s ease;
+        /* أزرار الرأس (اللغة والثيم) */
+        .header-actions {
+            position: absolute; top: 20px; display: flex; gap: 10px;
         }
+        /* ضبط مكان الأزرار حسب اللغة */
+        html[dir="rtl"] .header-actions { left: 20px; }
+        html[dir="ltr"] .header-actions { right: 20px; }
 
-        .gauge-wrapper {
-            position: relative;
-            width: 240px;
-            height: 120px;
-            margin: 0 auto;
-            overflow: hidden;
+        .icon-btn {
+            background: rgba(255,255,255,0.2); border: none;
+            width: 35px; height: 35px; border-radius: 50%;
+            color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 0.9rem; transition: 0.2s;
         }
+        .icon-btn:hover { background: rgba(255,255,255,0.4); }
 
-        .gauge-bg {
-            width: 240px;
-            height: 120px;
-            background: var(--input-border); /* Adaptive gray */
-            border-radius: 120px 120px 0 0;
-            transition: background-color 0.3s;
-        }
-
-        .gauge-fill {
-            width: 240px;
-            height: 120px;
-            background: var(--success);
-            border-radius: 120px 120px 0 0;
-            position: absolute;
-            top: 0;
-            left: 0;
-            transform-origin: center bottom;
-            transform: rotate(-180deg);
-            transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.5s;
-        }
-
-        .score-display {
-            font-size: 3.8rem;
-            font-weight: 800;
-            color: var(--text-main); 
-            margin-top: -65px;
-            position: relative;
-            z-index: 10;
-            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            line-height: 1;
-            transition: color 0.3s;
-        }
-
-        .mention {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-top: 10px;
-            padding: 8px 20px;
-            border-radius: 50px;
-            display: inline-block;
-            background: var(--mention-bg);
-            transition: all 0.3s ease;
-        }
-
-        .controls {
-            padding: 20px 30px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            background: var(--controls-bg);
-            border-bottom: 1px dashed var(--input-border);
-            transition: background-color 0.3s;
-        }
-
-        button {
-            font-family: inherit;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 0.95rem;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn-add {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
-            flex: 2;
-            min-width: 150px;
-        }
-
-        .btn-add:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
-        }
-
-        .btn-export {
-            background: var(--text-main); /* Adaptive black/white */
-            color: var(--card-bg); /* Adaptive white/black */
-            flex: 1;
-            min-width: 140px;
-            box-shadow: 0 4px 12px rgba(30, 41, 59, 0.25);
-        }
-
-        .btn-export:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
+        #welcome-msg {
+            text-align: center; color: var(--primary); font-weight: 700;
+            margin: 15px 20px; min-height: 1.5em; font-size: 1rem; line-height: 1.5;
         }
         
-        .btn-reset {
-            background: var(--card-bg);
-            color: var(--danger);
-            border: 1px solid #fecaca;
-            flex: 1;
-            min-width: 120px;
+        .dashboard { padding: 20px; text-align: center; }
+        .score-display { 
+            font-size: 3.5rem; font-weight: 900; margin-top: -60px; 
+            position: relative; z-index: 2; text-shadow: 0 5px 15px rgba(0,0,0,0.1); 
         }
         
-        [data-theme="dark"] .btn-reset {
-            border-color: rgba(239, 68, 68, 0.5);
-            background: transparent;
+        .gauge-wrapper { position: relative; width: 220px; height: 110px; margin: 0 auto; overflow: hidden; }
+        .gauge-bg { width: 220px; height: 110px; background: rgba(0,0,0,0.1); border-radius: 110px 110px 0 0; }
+        .gauge-fill { 
+            width: 220px; height: 110px; background: var(--success); 
+            border-radius: 110px 110px 0 0; position: absolute; top: 0; left: 0; 
+            transform-origin: center bottom; transform: rotate(-180deg); 
+            transition: 1s cubic-bezier(0.34, 1.56, 0.64, 1); 
         }
 
-        .btn-reset:hover {
-            background: rgba(239, 68, 68, 0.1);
+        #motivationQuote {
+            margin: 20px auto; padding: 25px; border-radius: 16px;
+            background: linear-gradient(145deg, #1e293b, #0f172a); 
+            color: #f1f5f9; border-right: 6px solid var(--accent);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); max-width: 85%;
+            display: none; animation: slideUp 0.6s ease;
         }
-
-        .table-wrapper {
-            padding: 10px 30px 30px;
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 12px;
-            min-width: 750px;
-        }
-
-        thead th {
-            text-align: inherit;
-            color: var(--text-light);
-            font-size: 0.9rem;
-            font-weight: 600;
-            padding: 0 15px 10px;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        tbody tr {
-            background: var(--table-row-bg);
-            box-shadow: 0 2px 6px var(--table-row-shadow);
-            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
-            animation: fadeInRow 0.4s ease-out;
-        }
-
-        @keyframes fadeInRow {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        tbody tr:hover {
-            transform: scale(1.005);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-
-        td {
-            padding: 12px;
-            border-top: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
-            vertical-align: middle;
-        }
-
-        /* Border radius adjustment based on Direction */
-        html[dir="rtl"] td:first-child {
-            border-right: 1px solid var(--border-color);
-            border-left: 4px solid var(--primary);
-            border-radius: 0 12px 12px 0;
-        }
-        html[dir="rtl"] td:last-child {
-            border-left: 1px solid var(--border-color);
-            border-radius: 12px 0 0 12px;
-        }
-
-        html[dir="ltr"] td:first-child {
-            border-left: 1px solid var(--border-color);
-            border-right: 4px solid var(--primary);
-            border-radius: 12px 0 0 12px;
-        }
-        html[dir="ltr"] td:last-child {
-            border-right: 1px solid var(--border-color);
-            border-radius: 0 12px 12px 0;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 10px 12px;
-            border: 2px solid var(--input-border);
-            border-radius: 10px;
-            font-family: inherit;
-            font-size: 0.95rem;
-            color: var(--text-main);
-            background: var(--input-bg);
-            transition: all 0.2s;
-            box-sizing: border-box;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: var(--input-focus-bg);
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
-        }
-
-        input:disabled {
-            background-color: var(--controls-bg);
-            color: var(--text-light);
-            border-color: var(--border-color);
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
+        /* تغيير جهة الحدود حسب اللغة */
+        html[dir="ltr"] #motivationQuote { border-right: none; border-left: 6px solid var(--accent); }
         
-        /* Dark mode placeholder fix */
-        [data-theme="dark"] ::placeholder {
-            color: #64748b;
-        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .badge-title { display: block; color: var(--accent); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; font-weight: 800; }
+        .quote-text { font-size: 1.1rem; line-height: 1.6; font-weight: 600; margin-bottom: 15px; }
+        .club-signature { font-size: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; opacity: 0.7; font-weight: 300; }
 
-        .col-name { width: 30%; }
-        .col-grade { width: 15%; }
-        .col-coef { width: 10%; }
-        .col-mode { width: 25%; }
-        .col-action { width: 5%; text-align: center; }
-
-        .delete-btn {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--danger);
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            padding: 0;
-            margin: 0 auto;
-            border: none;
-            transition: all 0.2s;
+        .controls { padding: 15px; display: flex; gap: 10px; flex-wrap: wrap; background: var(--mention-bg); justify-content: center; }
+        button { 
+            padding: 12px 24px; border-radius: 12px; border: none; cursor: pointer; 
+            font-family: inherit; font-weight: 700; transition: 0.2s; font-size: 0.9rem;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
+        button:hover { transform: translateY(-2px); opacity: 0.9; }
+        
+        .btn-add { background: var(--primary); color: white; flex: 2; min-width: 150px; }
+        .btn-exp { background: #1e293b; color: white; flex: 1; min-width: 120px; }
+        .btn-rst { background: white; color: var(--danger); border: 1px solid var(--danger); }
+        [data-theme="dark"] .btn-rst { background: transparent; }
 
-        .delete-btn:hover {
-            background: var(--danger);
-            color: white;
-            transform: rotate(90deg) scale(1.1);
+        .table-container { overflow-x: auto; padding: 0 15px 20px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; min-width: 600px; }
+        th { color: #64748b; font-size: 0.9rem; padding-bottom: 10px; font-weight: 600; }
+        td { background: var(--input-bg); padding: 5px; border-top: 1px solid rgba(0,0,0,0.05); border-bottom: 1px solid rgba(0,0,0,0.05); }
+        
+        /* ضبط الحواف الدائرية للجدول حسب اللغة */
+        html[dir="rtl"] td:first-child { border-radius: 0 10px 10px 0; border-right: 4px solid var(--primary); }
+        html[dir="rtl"] td:last-child { border-radius: 10px 0 0 10px; }
+        
+        html[dir="ltr"] td:first-child { border-radius: 10px 0 0 10px; border-left: 4px solid var(--primary); border-right: none; }
+        html[dir="ltr"] td:last-child { border-radius: 0 10px 10px 0; }
+        
+        input, select { width: 100%; padding: 10px; border: 1px solid transparent; background: transparent; font-family: inherit; color: inherit; text-align: center; font-weight: 600; outline: none; }
+        input:focus, select:focus { background: rgba(255,255,255,0.5); border-radius: 5px; }
+        [data-theme="dark"] input:focus { background: rgba(0,0,0,0.2); }
+        
+        #aboutModal { 
+            display: none; padding: 30px; background: var(--mention-bg); 
+            border-top: 3px solid var(--accent); animation: fadeIn 0.5s; 
+            position: relative; overflow: hidden; margin-top: 20px;
         }
-
-        footer {
-            text-align: center;
-            padding: 20px;
-            background: var(--footer-bg);
-            color: var(--text-light);
-            font-size: 0.85rem;
-            border-top: 1px solid var(--border-color);
-            transition: background-color 0.3s;
-        }
-
-        @media (max-width: 768px) {
-            .container { margin: 0; border-radius: 0; min-height: 100vh; }
-            header { padding: 30px 20px; }
-            header h1 { font-size: 1.5rem; }
-            .score-display { font-size: 3rem; }
-            .controls { padding: 15px; }
-            .btn-add, .btn-export, .btn-reset { width: 100%; flex: 100%; }
-            .table-wrapper { padding: 10px 15px; }
-            table { min-width: 650px; } 
-            input, select { font-size: 0.9rem; padding: 8px; }
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
+<audio id="sound-success" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+<audio id="sound-fail" src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
+
 <div class="container" id="captureArea">
-    
     <header>
         <div class="header-actions">
-            <button class="action-btn" onclick="toggleTheme()" id="themeBtn" title="تبديل الوضع">
-                <span class="theme-icon">🌙</span>
-            </button>
-            
-            <button class="action-btn" onclick="toggleLanguage()" id="langBtn">English</button>
+            <button onclick="toggleTheme()" class="icon-btn" title="Theme">🌙</button>
+            <button onclick="toggleLang()" class="icon-btn" title="Language">EN</button>
         </div>
-
-        <h1><span id="txt-title">نادي علوم المادة للذكاء الاصطناعي</span> <br> SMAIC</h1>
-        <h2 id="txt-subtitle">حاسبة المعدل الفصلي - 2026</h2>
+        <h1 id="txt-title" style="margin:0; font-size:1.8rem; font-weight: 800;">نادي علوم المادة للذكاء الاصطناعي</h1>
+        <h2 id="txt-subtitle" style="margin:5px 0 0; font-weight:400; opacity:0.9; font-size:1rem; letter-spacing: 1px;">SMAIC - GPA CALCULATOR 2026</h2>
     </header>
+
+    <div id="welcome-msg"></div>
 
     <div class="dashboard">
         <div class="gauge-wrapper">
@@ -478,422 +195,324 @@
             <div class="gauge-fill" id="gaugeFill"></div>
         </div>
         <div class="score-display" id="finalScore">0.00</div>
-        <div class="mention" id="mentionText">ابدأ بإدخال النقاط</div>
+        <div id="motivationQuote"></div>
     </div>
 
-    <div class="controls">
-        <button class="btn-add" onclick="addRow(true)">
-            <span>+</span> <span id="txt-add">إضافة مادة</span>
-        </button>
-        
-        <button class="btn-export" onclick="exportToImage()">
-            📷 <span id="txt-export">حفظ الصورة</span>
-        </button>
-
-        <button class="btn-reset" onclick="resetData()">
-            <span id="txt-reset">تصفير</span>
-        </button>
+    <div class="controls" data-html2canvas-ignore="true">
+        <button class="btn-add" onclick="addRow()"><span id="txt-add">+ إضافة مادة</span></button>
+        <button class="btn-exp" onclick="exportToImage()">📷 <span id="txt-exp">حفظ النتيجة</span></button>
+        <button class="btn-rst" onclick="resetData()"><span id="txt-rst">تصفير</span></button>
     </div>
 
-    <div class="table-wrapper">
+    <div class="table-container">
         <table id="gradeTable">
             <thead>
                 <tr>
-                    <th class="col-name" id="th-name">اسم المادة</th>
-                    <th class="col-grade" id="th-exam">الامتحان</th>
-                    <th class="col-grade" id="th-td">TD/TP</th>
-                    <th class="col-coef" id="th-coef">المعامل</th>
-                    <th class="col-mode" id="th-mode">طريقة الحساب</th>
-                    <th class="col-action delete-col-head"></th>
+                    <th width="35%" id="th-name">المادة</th>
+                    <th width="20%" id="th-exam">الامتحان</th>
+                    <th width="20%" id="th-td">TD/TP</th>
+                    <th width="10%" id="th-coef">المعامل</th>
+                    <th width="15%" id="th-mode">النظام</th>
+                    <th width="5%"></th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
         </table>
     </div>
 
-    <footer>
-        <span id="txt-footer">تم التطوير بواسطة SMAIC &copy; 2026 | جامعة قاصدي مرباح ورقلة</span>
-    </footer>
+    <div style="text-align: center; padding: 15px; background: var(--card-bg);" data-html2canvas-ignore="true">
+        <button onclick="toggleAbout()" id="btn-about" style="background:none; color:var(--text-main); text-decoration:underline; opacity:0.7; font-size: 0.85rem; width: auto; margin: 0 auto;">
+            📱 عن التطبيق ورؤية SMAIC
+        </button>
+    </div>
+
+    <div id="aboutModal">
+        <h3 id="about-title">📱 رفيقك الرقمي نحو التميز</h3>
+        <p id="about-text" style="line-height: 1.7;">تم تطوير هذا التطبيق كإحدى مبادرات <b>نادي SMAIC</b>، ليكون جسراً يربط بين جهدك الأكاديمي وطموحك الميداني.</p>
+        
+        <h4 id="vision-title" style="color:var(--primary); margin-bottom: 5px;">🎯 رؤية النادي:</h4>
+        <p id="vision-text" style="font-style: italic; opacity: 0.9;">"نحن لا نكتفي بالدراسة النظرية، بل ندمج علوم المادة بالتقنيات الحديثة. هذا التطبيق هو خطوة نحو رقمنة الحياة الجامعية بلمسة طلابية خالصة."</p>
+
+        <div style="text-align: center; margin-top: 25px; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 15px;">
+            <small style="display:block; font-weight:bold; font-size: 0.9rem;">Developed by: Kourde Boudjamaa</small>
+            <small style="opacity: 0.7;">President of SMAIC | UKMO University</small>
+        </div>
+    </div>
 </div>
 
 <script>
-    const STORAGE_KEY = 'smaic_calc_v11_dark';
-    const LANG_KEY = 'smaic_lang_v2';
-    const THEME_KEY = 'smaic_theme';
-
-    let currentLang = localStorage.getItem(LANG_KEY) || 'ar';
-    let currentTheme = localStorage.getItem(THEME_KEY) || 'light';
-
-    const translations = {
+    // --- Translations (القاموس) ---
+    const langData = {
         ar: {
             title: "نادي علوم المادة للذكاء الاصطناعي",
-            subtitle: "حاسبة المعدل الفصلي - 2026",
-            add: "إضافة مادة",
-            export: "حفظ الصورة",
-            reset: "تصفير",
-            th_name: "اسم المادة",
-            th_exam: "الامتحان",
-            th_td: "TD/TP",
-            th_coef: "المعامل",
-            th_mode: "طريقة الحساب",
+            subtitle: "SMAIC - حاسبة المعدل الملكية 2026",
+            welcome: "بوابة SMAIC الرقمية: حيث لا تُقاس قيمتك بما تحمله الورقة، بل بما يستطيعه عقلك..",
+            add: "+ إضافة مادة",
+            exp: "حفظ النتيجة",
+            rst: "تصفير",
+            th_name: "المادة", th_exam: "الامتحان", th_td: "TD/TP", th_coef: "المعامل", th_mode: "النظام",
+            about_btn: "📱 عن التطبيق ورؤية SMAIC",
+            about_title: "📱 رفيقك الرقمي نحو التميز",
+            about_text: "تم تطوير هذا التطبيق كإحدى مبادرات <b>نادي SMAIC</b>، ليكون جسراً يربط بين جهدك الأكاديمي وطموحك الميداني.",
+            vision_title: "🎯 رؤية النادي:",
+            vision_text: "\"نحن لا نكتفي بالدراسة النظرية، بل ندمج علوم المادة بالتقنيات الحديثة. هذا التطبيق هو خطوة نحو رقمنة الحياة الجامعية بلمسة طلابية خالصة.\"",
             ph_name: "اسم المادة...",
-            footer: "تم التطوير بواسطة SMAIC &copy; 2026 | جامعة قاصدي مرباح ورقلة",
-            start_msg: "ابدأ بإدخال النقاط",
-            lang_btn: "English",
-            
-            // Mentions
-            adj: "مؤجل (Ajourné)",
-            pass: "ناجح (Passable)",
-            good: "قريب من الجيد (Assez Bien)",
-            very_good: "جيد (Bien)",
-            excellent: "جيد جداً (Très Bien)",
-            honor: "ممتاز (Excellent)",
-            
-            // Modes
-            mode_mixed: "67% إمتحان + 33% TD",
-            mode_70_30: "70% إمتحان + 30% TD",
-            mode_60_40: "60% إمتحان + 40% TD",
-            mode_50_50: "50% إمتحان + 50% TD",
-            mode_100_exam: "100% إمتحان",
-            mode_100_td: "100% TD/TP"
+            mode_mixed: "67% + 33%", mode_50: "50% + 50%", mode_100: "100% امتحان",
+            sig: "الدرجاتُ أرقامٌ عابرة، و SMAIC وطنُ الخالدين.. مكانكَ بين العظماء."
         },
         en: {
-            title: "Material Sciences AI Club",
-            subtitle: "Semester GPA Calculator - 2026",
-            add: "Add Subject",
-            export: "Save Image",
-            reset: "Reset",
-            th_name: "Subject Name",
-            th_exam: "Exam",
-            th_td: "TD/TP",
-            th_coef: "Coef",
-            th_mode: "Calculation Mode",
-            ph_name: "Subject name...",
-            footer: "Developed by SMAIC &copy; 2026 | UKMO University",
-            start_msg: "Enter grades to start",
-            lang_btn: "عربي",
-
-            // Mentions
-            adj: "Adjourned (Fail)",
-            pass: "Passable (Pass)",
-            good: "Fair (Assez Bien)",
-            very_good: "Good (Bien)",
-            excellent: "Very Good (Très Bien)",
-            honor: "Excellent",
-
-            // Modes
-            mode_mixed: "67% Exam + 33% TD",
-            mode_70_30: "70% Exam + 30% TD",
-            mode_60_40: "60% Exam + 40% TD",
-            mode_50_50: "50% Exam + 50% TD",
-            mode_100_exam: "100% Exam",
-            mode_100_td: "100% TD/TP"
+            title: "Material Sciences & AI Club",
+            subtitle: "SMAIC - ROYAL GPA CALCULATOR 2026",
+            welcome: "SMAIC Digital Portal: Your value isn't measured by paper, but by what your mind can achieve.",
+            add: "+ Add Subject",
+            exp: "Save Result",
+            rst: "Reset",
+            th_name: "Subject", th_exam: "Exam", th_td: "TD/TP", th_coef: "Coef", th_mode: "Mode",
+            about_btn: "📱 About App & SMAIC Vision",
+            about_title: "📱 Your Digital Companion to Excellence",
+            about_text: "Developed by <b>SMAIC</b>, this app is a bridge connecting your academic effort with your field ambition.",
+            vision_title: "🎯 Our Vision:",
+            vision_text: "\"We go beyond theory, merging Material Sciences with modern tech. This app is a step towards digitizing university life with a pure student touch.\"",
+            ph_name: "Subject Name...",
+            mode_mixed: "67% + 33%", mode_50: "50% + 50%", mode_100: "100% Exam",
+            sig: "Grades are fleeting numbers, SMAIC is where legends are made."
         }
     };
-    
-    const defaultRow = {name: "", exam: null, td: null, coef: 1, mode: "mixed"};
-    let subjects = [];
+
+    // --- Royal Quotes (AR & EN) ---
+    const quotesDB = {
+        ar: {
+            diamond: { title: "مقام التفرّد - The Singularity 💎", text: ["أنت لست مجرد رقم، أنت خوارزمية الإبداع التي بلغت الكمال.", "بمعايير SMAIC للتميز.. أنت طاقة إبداعية تجاوزت كل التوقعات.", "في فيزياء التميز، أنت الضوء الذي لا يسبقه شيء."] },
+            gold: { title: "مقام السيادة - The Sovereignty 🥇", text: ["بذكاءٍ سياديّ فرضتَ منطقك؛ أنت أحد الأعمدة التي نراهن عليها.", "لم تطلب المجد، بل المجد سعى إليك.. وفي SMAIC تضع تاجه.", "معدلك الذهبي هو وقودك لتكون قائداً في مجالك العلمي."] },
+            silver: { title: "مقام الاتزان - The Equilibrium 🥈", text: ["أتقنت فن التوازن؛ نرى فيك المادة الخام للقيادة.", "خطواتك ثابتة.. SMAIC هو المكان الأنسب لتطوير مهاراتك.", "أنت في المسار الصحيح لتصنع الفارق في تخصصك."] },
+            resilience: { title: "مقام الثبات - The Ground State 🥉", text: ["عبرتَ بسلام، فالعبرة بمن يمتلك النفس الطويل.", "درجاتك ليست سقفاً لقدراتك، بل هي دافعٌ لتثبت للعالم من أنت.", "النجاح هو بوابة العبور، وفي SMAIC نصنع المجد وراء الأرقام."] },
+            challenge: { title: "مقام الاستعادة - System Reset 🔄", text: ["الضغط العالي هو ما يصنع الألماس؛ سقوطك اليوم هو إعادة تشغيل لنظامك.", "أنا الذي لا يحدُّه رقم.. سأريكم في SMAIC وجهاً آخر للمستحيل.", "المعدل رقم، وإرادتك هي المحرك.. عد لتثبت للجميع من أنت."] }
+        },
+        en: {
+            diamond: { title: "The Singularity Status 💎", text: ["You are not just a number; you are an algorithm of perfection.", "By SMAIC standards, you are a creative energy beyond expectations.", "In the physics of excellence, you are the light that precedes everything."] },
+            gold: { title: "The Sovereignty Status 🥇", text: ["With sovereign intelligence, you imposed your logic.", "You didn't seek glory; glory sought you. At SMAIC, you wear its crown.", "Your golden GPA is your fuel to become a leader in your field."] },
+            silver: { title: "The Equilibrium Status 🥈", text: ["You mastered the art of balance; we see in you the raw material of leadership.", "Steady steps... SMAIC is the place to evolve beyond the paper.", "You are on the right track to make a difference."] },
+            resilience: { title: "The Ground State Status 🥉", text: ["You passed safely; the lesson is in endurance.", "Grades are not your limit; they are a motive to prove who you are.", "Success is the gate, and at SMAIC we build glory beyond numbers."] },
+            challenge: { title: "System Reset Status 🔄", text: ["High pressure creates diamonds; your fall today is a system reboot.", "I am undefined by numbers... I will show you another face of the impossible.", "GPA is a number, will is the engine. Come back stronger."] }
+        }
+    };
+
+    let curLang = 'ar';
+    let subjects = [{name: "", exam: null, td: null, coef: 1, mode: "mixed"}];
+    let welcomeIndex = 0;
+    let welcomeTimer;
 
     window.onload = function() {
-        applyLanguage(currentLang);
-        applyTheme(currentTheme);
-        
-        const savedData = localStorage.getItem(STORAGE_KEY);
-        if (savedData) {
-            try {
-                subjects = JSON.parse(savedData);
-                if (!Array.isArray(subjects) || subjects.length === 0) throw new Error();
-            } catch (e) {
-                subjects = [JSON.parse(JSON.stringify(defaultRow))];
-            }
-        } else {
-            subjects = [JSON.parse(JSON.stringify(defaultRow))];
-        }
         renderTable();
-        calculate();
+        startWelcomeType();
     };
 
-    // --- Theme Logic ---
-    function toggleTheme() {
-        currentTheme = currentTheme === 'light' ? 'dark' : 'light';
-        localStorage.setItem(THEME_KEY, currentTheme);
-        applyTheme(currentTheme);
-    }
+    function toggleLang() {
+        curLang = curLang === 'ar' ? 'en' : 'ar';
+        document.documentElement.lang = curLang;
+        document.documentElement.dir = curLang === 'ar' ? 'rtl' : 'ltr';
+        
+        // Update Button Text
+        document.querySelector('[onclick="toggleLang()"]').innerText = curLang === 'ar' ? 'EN' : 'عربي';
 
-    function applyTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        const icon = document.querySelector('.theme-icon');
-        icon.innerText = theme === 'light' ? '🌙' : '☀️';
-    }
-
-    // --- Language Logic ---
-    function toggleLanguage() {
-        currentLang = currentLang === 'ar' ? 'en' : 'ar';
-        localStorage.setItem(LANG_KEY, currentLang);
-        applyLanguage(currentLang);
-        renderTable(); 
-        calculate();   
-    }
-
-    function applyLanguage(lang) {
-        const t = translations[lang];
-        document.documentElement.lang = lang;
-        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-
-        document.getElementById('langBtn').innerText = t.lang_btn;
+        // Update UI Text
+        const t = langData[curLang];
         document.getElementById('txt-title').innerText = t.title;
         document.getElementById('txt-subtitle').innerText = t.subtitle;
         document.getElementById('txt-add').innerText = t.add;
-        document.getElementById('txt-export').innerText = t.export;
-        document.getElementById('txt-reset').innerText = t.reset;
+        document.getElementById('txt-exp').innerText = t.exp;
+        document.getElementById('txt-rst').innerText = t.rst;
         document.getElementById('th-name').innerText = t.th_name;
         document.getElementById('th-exam').innerText = t.th_exam;
         document.getElementById('th-td').innerText = t.th_td;
         document.getElementById('th-coef').innerText = t.th_coef;
         document.getElementById('th-mode').innerText = t.th_mode;
-        document.getElementById('txt-footer').innerHTML = t.footer;
+        document.getElementById('btn-about').innerText = t.about_btn;
+        document.getElementById('about-title').innerText = t.about_title;
+        document.getElementById('about-text').innerHTML = t.about_text;
+        document.getElementById('vision-title').innerText = t.vision_title;
+        document.getElementById('vision-text').innerText = t.vision_text;
+
+        // Restart Welcome Typing
+        startWelcomeType();
+        
+        // Re-render table (for placeholders and dropdowns)
+        renderTable();
     }
 
-    // --- Main App Logic ---
-    function renderTable(focusLast = false) {
+    function startWelcomeType() {
+        clearTimeout(welcomeTimer);
+        document.getElementById("welcome-msg").innerHTML = "";
+        welcomeIndex = 0;
+        typeWriter();
+    }
+
+    function typeWriter() {
+        const text = langData[curLang].welcome;
+        if (welcomeIndex < text.length) {
+            document.getElementById("welcome-msg").innerHTML += text.charAt(welcomeIndex);
+            welcomeIndex++;
+            welcomeTimer = setTimeout(typeWriter, 30);
+        }
+    }
+
+    // --- Table Functions ---
+    function addRow() {
+        subjects.push({name: "", exam: null, td: null, coef: 1, mode: "mixed"});
+        renderTable();
+    }
+
+    function renderTable() {
+        const t = langData[curLang];
         const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '';
-        const t = translations[currentLang];
-
-        subjects.forEach((sub, index) => {
-            const row = document.createElement('tr');
-            
-            const examVal = sub.exam === null ? '' : sub.exam;
-            const tdVal = sub.td === null ? '' : sub.td;
-            const examDisabled = sub.mode === 'td_100';
-            const tdDisabled = sub.mode === 'exam_100';
-
-            row.innerHTML = `
+        tbody.innerHTML = subjects.map((s, i) => `
+            <tr>
+                <td><input type="text" placeholder="${t.ph_name}" value="${s.name}" oninput="updateData(${i}, 'name', this.value)" style="text-align:${curLang==='ar'?'right':'left'}"></td>
+                <td><input type="number" placeholder="--" step="0.01" value="${s.exam || ''}" oninput="updateData(${i}, 'exam', this.value)"></td>
+                <td><input type="number" placeholder="--" step="0.01" value="${s.td || ''}" oninput="updateData(${i}, 'td', this.value)" ${s.mode === '100exam' ? 'disabled' : ''}></td>
+                <td><input type="number" value="${s.coef}" oninput="updateData(${i}, 'coef', this.value)"></td>
                 <td>
-                    <input type="text" id="name-${index}" value="${sub.name}" placeholder="${t.ph_name}" 
-                    oninput="updateData(${index}, 'name', this.value)">
-                </td>
-                
-                <td>
-                    <input type="number" step="0.25" min="0" max="20" placeholder="${examDisabled ? '-' : '0'}" 
-                    value="${examVal}" oninput="updateData(${index}, 'exam', this.value)" 
-                    onblur="validateRange(this)"
-                    ${examDisabled ? 'disabled' : ''}>
-                </td>
-                
-                <td>
-                    <input type="number" step="0.25" min="0" max="20" placeholder="${tdDisabled ? '-' : '0'}" 
-                    value="${tdVal}" oninput="updateData(${index}, 'td', this.value)"
-                    onblur="validateRange(this)"
-                    ${tdDisabled ? 'disabled' : ''}>
-                </td>
-                
-                <td>
-                    <input type="number" step="1" min="1" max="20" value="${sub.coef}" 
-                    oninput="updateData(${index}, 'coef', this.value)"
-                    onblur="validateRange(this, 1)">
-                </td>
-                
-                <td>
-                    <select onchange="updateData(${index}, 'mode', this.value)">
-                        <option value="mixed" ${sub.mode === 'mixed' ? 'selected' : ''}>${t.mode_mixed}</option>
-                        <option value="seventy_thirty" ${sub.mode === 'seventy_thirty' ? 'selected' : ''}>${t.mode_70_30}</option>
-                        <option value="sixty_forty" ${sub.mode === 'sixty_forty' ? 'selected' : ''}>${t.mode_60_40}</option>
-                        <option value="avg" ${sub.mode === 'avg' ? 'selected' : ''}>${t.mode_50_50}</option>
-                        <option value="exam_100" ${sub.mode === 'exam_100' ? 'selected' : ''}>${t.mode_100_exam}</option>
-                        <option value="td_100" ${sub.mode === 'td_100' ? 'selected' : ''}>${t.mode_100_td}</option>
+                    <select onchange="updateData(${i}, 'mode', this.value)" style="font-size:0.8rem">
+                        <option value="mixed" ${s.mode === 'mixed' ? 'selected' : ''}>${t.mode_mixed}</option>
+                        <option value="5050" ${s.mode === '5050' ? 'selected' : ''}>${t.mode_50}</option>
+                        <option value="100exam" ${s.mode === '100exam' ? 'selected' : ''}>${t.mode_100}</option>
                     </select>
                 </td>
-                <td class="delete-cell"><button class="delete-btn" onclick="deleteRow(${index})" title="Delete">&times;</button></td>
-            `;
-            tbody.appendChild(row);
-        });
-
-        if (focusLast && subjects.length > 0) {
-            const lastInput = document.getElementById(`name-${subjects.length - 1}`);
-            if(lastInput) lastInput.focus();
-        }
-    }
-
-    function validateRange(input, minVal = 0) {
-        let val = parseFloat(input.value);
-        if (isNaN(val)) return;
-        if (val > 20) input.value = 20;
-        if (val < minVal) input.value = minVal;
-    }
-
-    function addRow(focus = false) {
-        subjects.push(JSON.parse(JSON.stringify(defaultRow)));
-        renderTable(focus);
-        setTimeout(() => {
-            const tableWrapper = document.querySelector('.table-wrapper');
-            tableWrapper.scrollTo({ top: tableWrapper.scrollHeight, behavior: 'smooth' });
-        }, 50);
-    }
-
-    function deleteRow(index) {
-        subjects.splice(index, 1);
-        if(subjects.length === 0) {
-             subjects.push(JSON.parse(JSON.stringify(defaultRow)));
-        }
-        renderTable();
+                <td style="text-align:center"><button onclick="removeRow(${i})" style="background:none; color:var(--danger); padding:0; width:30px; margin:0 auto;">✕</button></td>
+            </tr>
+        `).join('');
         calculate();
-        saveToLocal();
     }
 
     function updateData(index, field, value) {
-        if (field === 'mode') {
-            subjects[index].mode = value;
-            if(value === 'exam_100') subjects[index].td = null;
-            if(value === 'td_100') subjects[index].exam = null;
-            renderTable();
-        } else if (field === 'name') {
-            subjects[index].name = value;
+        if(field === 'name' || field === 'mode') {
+            subjects[index][field] = value;
+            if(field === 'mode') renderTable();
         } else {
-            if (value === '') {
-                subjects[index][field] = null;
-            } else {
-                let val = parseFloat(value);
-                if (field !== 'coef') {
-                    if (val > 20) val = 20; 
-                    if (val < 0) val = 0;
-                }
-                subjects[index][field] = val;
-            }
+            subjects[index][field] = value === "" ? null : parseFloat(value);
         }
         calculate();
-        saveToLocal();
     }
 
-    function calculate() {
-        let totalScore = 0;
-        let totalCoef = 0;
-        let hasValidGrades = false;
-
-        subjects.forEach(sub => {
-            let exam = sub.exam === null ? 0 : sub.exam;
-            let td = sub.td === null ? 0 : sub.td;
-            
-            if (sub.mode === 'exam_100' && sub.exam !== null) hasValidGrades = true;
-            else if (sub.mode === 'td_100' && sub.td !== null) hasValidGrades = true;
-            else if ((['mixed', 'avg', 'sixty_forty', 'seventy_thirty'].includes(sub.mode)) && (sub.exam !== null || sub.td !== null)) hasValidGrades = true;
-
-            let avg = 0;
-            switch(sub.mode) {
-                case 'mixed': avg = (exam * 2 + td) / 3; break;
-                case 'seventy_thirty': avg = (exam * 0.7) + (td * 0.3); break;
-                case 'sixty_forty': avg = (exam * 0.6) + (td * 0.4); break;
-                case 'avg': avg = (exam + td) / 2; break;
-                case 'exam_100': avg = exam; break;
-                case 'td_100': avg = td; break;
-            }
-            
-            totalScore += avg * sub.coef;
-            totalCoef += parseFloat(sub.coef) || 0;
-        });
-
-        const finalGPA = (totalCoef > 0) ? (totalScore / totalCoef) : 0;
-        updateDisplay(finalGPA, hasValidGrades);
-    }
-
-    function updateDisplay(gpa, hasData) {
-        const scoreEl = document.getElementById('finalScore');
-        const mentionEl = document.getElementById('mentionText');
-        const gaugeFill = document.getElementById('gaugeFill');
-        const t = translations[currentLang];
-
-        scoreEl.innerText = gpa.toFixed(2);
-        
-        // Dynamic score color logic
-        if (!hasData) {
-             scoreEl.style.color = currentTheme === 'dark' ? '#94a3b8' : '#94a3b8';
-        } else {
-             scoreEl.style.color = 'var(--text-main)';
-        }
-
-        let gaugeColor = '#ef4444';
-        let mention = t.adj;
-        let bgColor = '#fee2e2'; // Light red
-        let textColor = '#991b1b'; // Dark red
-
-        if (!hasData) {
-            mention = t.start_msg;
-            gaugeColor = currentTheme === 'dark' ? '#475569' : '#e2e8f0';
-            bgColor = 'var(--mention-bg)';
-            textColor = 'var(--text-light)';
-        } else {
-            if (gpa >= 10) {
-                gaugeColor = '#10b981';
-                bgColor = currentTheme === 'dark' ? 'rgba(16, 185, 129, 0.2)' : '#d1fae5';
-                textColor = currentTheme === 'dark' ? '#34d399' : '#065f46';
-                mention = t.pass;
-                if(gpa >= 12) mention = t.good;
-                if(gpa >= 14) mention = t.very_good;
-                if(gpa >= 16) mention = t.excellent;
-                if(gpa >= 18) mention = t.honor;
-            } else {
-                gaugeColor = '#ef4444'; 
-                bgColor = currentTheme === 'dark' ? 'rgba(239, 68, 68, 0.2)' : '#fee2e2';
-                textColor = currentTheme === 'dark' ? '#f87171' : '#991b1b';
-                mention = t.adj;
-            }
-        }
-
-        mentionEl.innerText = mention;
-        mentionEl.style.backgroundColor = bgColor;
-        mentionEl.style.color = textColor;
-
-        // Rotate gauge
-        const percentage = Math.min(Math.max(gpa / 20, 0), 1);
-        const rotation = -180 + (percentage * 180);
-        gaugeFill.style.transform = `rotate(${rotation}deg)`;
-        gaugeFill.style.backgroundColor = gaugeColor;
+    function removeRow(index) {
+        subjects.splice(index, 1);
+        renderTable();
     }
 
     function resetData() {
-        const msg = currentLang === 'ar' ? "هل أنت متأكد من تصفير جميع البيانات؟" : "Are you sure you want to reset all data?";
-        if(confirm(msg)) {
-            subjects = [JSON.parse(JSON.stringify(defaultRow))];
+        if(confirm(curLang === 'ar' ? "هل أنت متأكد؟" : "Are you sure?")) {
+            subjects = [{name: "", exam: null, td: null, coef: 1, mode: "mixed"}];
             renderTable();
-            calculate();
-            saveToLocal();
+            document.getElementById('finalScore').innerText = "0.00";
+            document.getElementById('motivationQuote').style.display = 'none';
+            document.getElementById('gaugeFill').style.transform = 'rotate(-180deg)';
         }
     }
 
-    function saveToLocal() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(subjects));
+    // --- Calculation & Logic ---
+    let lastState = null;
+    function calculate() {
+        let totalWeighted = 0, totalCoef = 0, hasData = false;
+        subjects.forEach(s => {
+            if (s.exam !== null) hasData = true;
+            let m = 0;
+            if (s.mode === 'mixed') m = (s.exam||0)*0.67 + (s.td||0)*0.33;
+            else if (s.mode === '5050') m = (s.exam||0)*0.5 + (s.td||0)*0.5;
+            else m = (s.exam||0);
+            totalWeighted += m * (s.coef||1);
+            totalCoef += (s.coef||1);
+        });
+
+        const gpa = totalCoef > 0 ? totalWeighted / totalCoef : 0;
+        document.getElementById('finalScore').innerText = gpa.toFixed(2);
+        
+        const angle = -180 + Math.min((gpa / 20) * 180, 180);
+        document.getElementById('gaugeFill').style.transform = `rotate(${angle}deg)`;
+        
+        if (hasData && gpa > 0) {
+            let currentState = gpa >= 10 ? 'pass' : 'fail';
+            if (currentState !== lastState) {
+                const soundId = currentState === 'pass' ? 'sound-success' : 'sound-fail';
+                document.getElementById(soundId).play().catch(e=>{});
+                lastState = currentState;
+            }
+        }
+        updateMotivation(gpa, hasData);
     }
-    
+
+    function updateMotivation(gpa, hasData) {
+        const quoteBox = document.getElementById('motivationQuote');
+        if (!hasData || gpa === 0) { quoteBox.style.display = 'none'; return; }
+
+        let q = quotesDB[curLang];
+        let cat;
+        if (gpa >= 17) cat = q.diamond;
+        else if (gpa >= 15) cat = q.gold;
+        else if (gpa >= 12) cat = q.silver;
+        else if (gpa >= 10) cat = q.resilience;
+        else cat = q.challenge;
+
+        if(quoteBox.style.display === 'none' || Math.random() > 0.8) {
+            const randomText = cat.text[Math.floor(Math.random() * cat.text.length)];
+            const sig = langData[curLang].sig;
+            
+            quoteBox.innerHTML = `
+                <span class="badge-title">${cat.title}</span>
+                <div class="quote-text">"${randomText}"</div>
+                <div class="club-signature">${sig}</div>
+            `;
+            
+            if(gpa >= 15) quoteBox.style.borderColor = "#fbbf24";
+            else if(gpa < 10) quoteBox.style.borderColor = "#ef4444";
+            else quoteBox.style.borderColor = "#4f46e5";
+            
+            // Fix Border Side based on Dir
+            if(curLang === 'ar') {
+                quoteBox.style.borderRightWidth = "6px"; quoteBox.style.borderLeftWidth = "0";
+            } else {
+                quoteBox.style.borderRightWidth = "0"; quoteBox.style.borderLeftWidth = "6px";
+            }
+        }
+        quoteBox.style.display = 'block';
+    }
+
+    function toggleAbout() {
+        const modal = document.getElementById('aboutModal');
+        modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
+        if(modal.style.display === 'block') modal.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function toggleTheme() {
+        const html = document.documentElement;
+        html.setAttribute('data-theme', html.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+    }
+
     function exportToImage() {
         const node = document.getElementById('captureArea');
-        const exportBtn = document.querySelector('.btn-export');
-        const originalText = exportBtn.innerHTML;
+        const controls = document.querySelector('.controls');
+        const aboutDiv = document.querySelector('#btn-about').parentElement;
+        const headerBtns = document.querySelector('.header-actions');
         
-        exportBtn.innerHTML = '⌛ ...';
-        
-        // Determine background color based on theme
-        const bgColor = currentTheme === 'dark' ? '#0f172a' : '#f0f4ff';
+        controls.style.display = 'none';
+        aboutDiv.style.display = 'none';
+        headerBtns.style.display = 'none'; // Hide buttons in image
 
-        htmlToImage.toPng(node, { 
-            backgroundColor: bgColor,
-            style: { margin: '0' },
-            filter: (node) => {
-                // Filter out both header buttons from the screenshot
-                return !node.classList || !node.classList.contains('header-actions');
-            }
-        })
-        .then(function (dataUrl) {
-            const link = document.createElement('a');
-            link.download = `SMAIC-GPA-${new Date().getTime()}.png`;
-            link.href = dataUrl;
-            link.click();
-            exportBtn.innerHTML = originalText;
-        })
-        .catch(function (error) {
-            console.error('oops, something went wrong!', error);
-            exportBtn.innerHTML = originalText;
-            alert('Error saving image.');
-        });
+        htmlToImage.toPng(node, { backgroundColor: getComputedStyle(document.body).getPropertyValue('--card-bg') })
+            .then(function (dataUrl) {
+                const link = document.createElement('a');
+                link.download = `SMAIC-GPA-${new Date().getTime()}.png`;
+                link.href = dataUrl;
+                link.click();
+                controls.style.display = 'flex';
+                aboutDiv.style.display = 'block';
+                headerBtns.style.display = 'flex';
+            })
+            .catch(function (error) {
+                alert("Error saving image.");
+                controls.style.display = 'flex';
+                aboutDiv.style.display = 'block';
+                headerBtns.style.display = 'flex';
+            });
     }
 </script>
 
