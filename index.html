@@ -6,7 +6,7 @@
     <title>SMAIC - GPA Calculator | Royal Edition</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Poppins:wght@400;600;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -47,7 +47,6 @@
         }
         [data-theme="dark"] .watermark { filter: invert(1); opacity: 0.08; }
 
-        /* الطبقات */
         header, .dashboard, .controls, .table-container, #aboutModal, .footer-area { position: relative; z-index: 1; }
 
         header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 30px; text-align: center; }
@@ -56,6 +55,15 @@
         .icon-btn { background: rgba(255,255,255,0.2); border: none; width: 35px; height: 35px; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; transition: 0.2s; }
         
         #welcome-msg { text-align: center; color: var(--primary); font-weight: 700; margin: 15px 20px; min-height: 1.5em; font-size: 1rem; line-height: 1.5; }
+        
+        /* Student Name Input */
+        .student-name-input {
+            display: block; margin: 0 auto 20px; padding: 10px 20px;
+            border: 2px solid var(--primary); border-radius: 50px;
+            width: 80%; max-width: 300px; text-align: center; font-family: inherit; font-weight: bold;
+            background: var(--input-bg); color: var(--text-main);
+        }
+
         .dashboard { padding: 20px; text-align: center; }
         .score-display { font-size: 3.5rem; font-weight: 900; margin-top: -60px; position: relative; z-index: 2; text-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .gauge-wrapper { position: relative; width: 220px; height: 110px; margin: 0 auto; overflow: hidden; }
@@ -93,6 +101,30 @@
         
         #aboutModal { display: none; padding: 30px; background: var(--mention-bg); border-top: 3px solid var(--accent); animation: fadeIn 0.5s; position: relative; overflow: hidden; margin-top: 20px; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- تصميم كشف النقاط الرسمي (المخفي) --- */
+        #officialTranscript {
+            position: absolute; top: -9999px; left: -9999px; /* مخفي عن الشاشة */
+            width: 800px; /* عرض A4 تقريبي */
+            background: white; color: black;
+            padding: 40px; font-family: 'Amiri', 'Cairo', serif;
+            border: 1px solid #ddd;
+        }
+        .trans-header { text-align: center; border-bottom: 3px double #000; padding-bottom: 20px; margin-bottom: 30px; position: relative; }
+        .trans-logo { position: absolute; top: 0; left: 0; width: 80px; opacity: 0.8; }
+        .trans-title { font-size: 2rem; font-weight: bold; margin: 10px 0; font-family: 'Amiri', serif; }
+        .trans-info { display: flex; justify-content: space-between; margin-bottom: 30px; font-size: 1.1rem; border: 1px solid #eee; padding: 15px; border-radius: 8px; }
+        .trans-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-family: 'Amiri', serif; }
+        .trans-table th { background: #f3f4f6; border: 1px solid #000; padding: 10px; font-weight: bold; }
+        .trans-table td { border: 1px solid #000; padding: 8px; text-align: center; }
+        .trans-footer { display: flex; justify-content: space-between; margin-top: 50px; font-family: 'Amiri', serif; }
+        .trans-sign { text-align: center; width: 200px; }
+        .trans-watermark {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-10deg);
+            width: 400px; height: 400px; opacity: 0.05; z-index: 0; pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cdefs%3E%3Cpath id='textcircle' d='M250,400 a150,150 0 0,1 0,-300 a150,150 0 0,1 0,300 Z' transform='rotate(180,250,250)'/%3E%3C/defs%3E%3Cg style='fill:%23000; stroke:%23000;'%3E%3Ccircle cx='250' cy='250' r='240' style='fill:none; stroke-width:4;'/%3E%3Ccircle cx='250' cy='250' r='180' style='fill:none; stroke-width:3;'/%3E%3Ctext x='250' y='235' text-anchor='middle' style='font-size:85px; font-weight:900; font-family:serif; stroke:none;'%3ESMAIC%3C/text%3E%3C/g%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: center; background-size: contain;
+        }
     </style>
 </head>
 <body>
@@ -113,6 +145,8 @@
 
     <div id="welcome-msg"></div>
 
+    <input type="text" id="studentName" class="student-name-input" placeholder="اكتب اسمك هنا..." oninput="saveData()">
+
     <div class="dashboard">
         <div class="gauge-wrapper">
             <div class="gauge-bg"></div>
@@ -124,7 +158,7 @@
 
     <div class="controls" data-html2canvas-ignore="true">
         <button class="btn-add" onclick="addRow()"><span id="txt-add">+ إضافة مادة</span></button>
-        <button class="btn-exp" onclick="exportToImage()">📷 <span id="txt-exp">حفظ النتيجة</span></button>
+        <button class="btn-exp" onclick="printOfficialTranscript()" style="background: linear-gradient(135deg, #1e293b, #334155);">🖨️ <span id="txt-print">طباعة كشف</span></button>
         <button class="btn-rst" onclick="resetData()"><span id="txt-rst">تصفير</span></button>
     </div>
 
@@ -160,13 +194,67 @@
     </div>
 </div>
 
+<div id="officialTranscript">
+    <div class="trans-watermark"></div>
+    <div class="trans-header">
+        <div class="trans-title" id="trans-uni">جامعة قاصدي مرباح ورقلة</div>
+        <div style="font-size: 1.2rem; margin-top: 5px;" id="trans-club">نادي علوم المادة للذكاء الاصطناعي (SMAIC)</div>
+        <div style="margin-top: 15px; font-weight: bold; text-decoration: underline;">كشف نقاط فصلي تقديري</div>
+    </div>
+    
+    <div class="trans-info">
+        <div><span id="trans-lbl-name">الطالب(ة):</span> <b id="printName">---</b></div>
+        <div><span id="trans-lbl-date">التاريخ:</span> <b id="printDate">---</b></div>
+    </div>
+
+    <table class="trans-table">
+        <thead>
+            <tr>
+                <th id="tr-sub">المادة</th>
+                <th id="tr-avg">المعدل</th>
+                <th id="tr-coef">المعامل</th>
+                <th id="tr-res">القرار</th>
+            </tr>
+        </thead>
+        <tbody id="printBody"></tbody>
+        <tfoot>
+            <tr style="background: #f9fafb; font-weight: bold;">
+                <td style="text-align: right; padding-right: 15px;">المعدل العام (GPA)</td>
+                <td id="printGPA" style="font-size: 1.2rem;">0.00</td>
+                <td id="printCoef">0</td>
+                <td id="printMention">---</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="trans-footer">
+        <div class="trans-sign">
+            <p>ختم النادي</p>
+            <div style="width: 100px; height: 100px; border: 2px dashed #ccc; margin: 10px auto; border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0.5;">
+                SMAIC
+            </div>
+        </div>
+        <div class="trans-sign">
+            <p>توقيع الطالب</p>
+            <br><br>..................
+        </div>
+    </div>
+    <div style="text-align: center; font-size: 0.7rem; margin-top: 30px; opacity: 0.6;">
+        هذه الوثيقة تقديرية تم إنشاؤها عبر منصة SMAIC الرقمية - developed by K. Boudjamaa
+    </div>
+</div>
+
 <script>
     const langData = {
         ar: {
-            title: "نادي علوم المادة للذكاء الاصطناعي", subtitle: "SMAIC - حاسبة المعدل الملكية 2026", welcome: "بوابة SMAIC الرقمية: حيث لا تُقاس قيمتك بما تحمله الورقة، بل بما يستطيعه عقلك..", add: "+ إضافة مادة", exp: "حفظ النتيجة", rst: "تصفير", th_name: "المادة", th_exam: "الامتحان", th_td: "TD/TP", th_coef: "المعامل", th_mode: "النظام", about_btn: "📱 عن التطبيق ورؤية SMAIC", about_title: "📱 رفيقك الرقمي نحو التميز", about_text: "تم تطوير هذا التطبيق كإحدى مبادرات <b>نادي SMAIC</b>، ليكون جسراً يربط بين جهدك الأكاديمي وطموحك الميداني.", ph_name: "اسم المادة...", mode_mixed: "67% إمتحان + 33% TD", mode_70: "70% إمتحان + 30% TD", mode_60: "60% إمتحان + 40% TD", mode_50: "50% إمتحان + 50% TD", mode_100: "100% إمتحان", mode_100td: "100% TD/TP", sig: "الدرجاتُ أرقامٌ عابرة، و SMAIC وطنُ الخالدين.. مكانكَ بين العظماء."
+            title: "نادي علوم المادة للذكاء الاصطناعي", subtitle: "SMAIC - حاسبة المعدل الملكية 2026", welcome: "بوابة SMAIC الرقمية: حيث لا تُقاس قيمتك بما تحمله الورقة، بل بما يستطيعه عقلك..", add: "+ إضافة مادة", print: "طباعة كشف", rst: "تصفير", th_name: "المادة", th_exam: "الامتحان", th_td: "TD/TP", th_coef: "المعامل", th_mode: "النظام", about_btn: "📱 عن التطبيق ورؤية SMAIC", about_title: "📱 رفيقك الرقمي نحو التميز", about_text: "تم تطوير هذا التطبيق كإحدى مبادرات <b>نادي SMAIC</b>، ليكون جسراً يربط بين جهدك الأكاديمي وطموحك الميداني.", ph_name: "اسم المادة...", mode_mixed: "67% إمتحان + 33% TD", mode_70: "70% إمتحان + 30% TD", mode_60: "60% إمتحان + 40% TD", mode_50: "50% إمتحان + 50% TD", mode_100: "100% إمتحان", mode_100td: "100% TD/TP", sig: "الدرجاتُ أرقامٌ عابرة، و SMAIC وطنُ الخالدين.. مكانكَ بين العظماء.",
+            tr_sub: "المادة", tr_avg: "المعدل", tr_coef: "المعامل", tr_res: "القرار", tr_pass: "مكتسب", tr_fail: "غير مكتسب",
+            uni: "جامعة قاصدي مرباح ورقلة", club: "نادي علوم المادة للذكاء الاصطناعي (SMAIC)", lbl_name: "الطالب(ة):", lbl_date: "التاريخ:"
         },
         en: {
-            title: "Material Sciences & AI Club", subtitle: "SMAIC - ROYAL GPA CALCULATOR 2026", welcome: "SMAIC Digital Portal: Your value isn't measured by paper, but by what your mind can achieve.", add: "+ Add Subject", exp: "Save Result", rst: "Reset", th_name: "Subject", th_exam: "Exam", th_td: "TD/TP", th_coef: "Coef", th_mode: "Mode", about_btn: "📱 About App & SMAIC Vision", about_title: "📱 Your Digital Companion to Excellence", about_text: "Developed by <b>SMAIC</b>, this app is a bridge connecting your academic effort with your field ambition.", ph_name: "Subject Name...", mode_mixed: "67% Exam + 33% TD", mode_70: "70% Exam + 30% TD", mode_60: "60% Exam + 40% TD", mode_50: "50% Exam + 50% TD", mode_100: "100% Exam", mode_100td: "100% TD/TP", sig: "Grades are fleeting numbers, SMAIC is where legends are made."
+            title: "Material Sciences & AI Club", subtitle: "SMAIC - ROYAL GPA CALCULATOR 2026", welcome: "SMAIC Digital Portal: Your value isn't measured by paper, but by what your mind can achieve.", add: "+ Add Subject", print: "Print Official Transcript", rst: "Reset", th_name: "Subject", th_exam: "Exam", th_td: "TD/TP", th_coef: "Coef", th_mode: "Mode", about_btn: "📱 About App & SMAIC Vision", about_title: "📱 Your Digital Companion to Excellence", about_text: "Developed by <b>SMAIC</b>, this app is a bridge connecting your academic effort with your field ambition.", ph_name: "Subject Name...", mode_mixed: "67% Exam + 33% TD", mode_70: "70% Exam + 30% TD", mode_60: "60% Exam + 40% TD", mode_50: "50% Exam + 50% TD", mode_100: "100% Exam", mode_100td: "100% TD/TP", sig: "Grades are fleeting numbers, SMAIC is where legends are made.",
+            tr_sub: "Subject", tr_avg: "Average", tr_coef: "Coef", tr_res: "Decision", tr_pass: "Acquired", tr_fail: "Not Acquired",
+            uni: "University Kasdi Merbah Ouargla", club: "Material Sciences & AI Club (SMAIC)", lbl_name: "Student:", lbl_date: "Date:"
         }
     };
 
@@ -189,14 +277,24 @@
 
     let curLang = 'ar';
     let subjects = [{name: "", exam: null, td: null, coef: 1, mode: "mixed"}];
+    let studentName = "";
     let welcomeIndex = 0;
     let welcomeTimer;
     let lastState = null;
 
-    function saveData() { localStorage.setItem('smaic_subjects', JSON.stringify(subjects)); }
+    function saveData() { 
+        localStorage.setItem('smaic_subjects', JSON.stringify(subjects));
+        localStorage.setItem('smaic_name', document.getElementById('studentName').value);
+    }
+    
     function loadData() {
         const saved = localStorage.getItem('smaic_subjects');
         if (saved) subjects = JSON.parse(saved);
+        const name = localStorage.getItem('smaic_name');
+        if (name) {
+            studentName = name;
+            document.getElementById('studentName').value = name;
+        }
     }
 
     window.onload = function() {
@@ -210,20 +308,34 @@
         document.documentElement.lang = curLang;
         document.documentElement.dir = curLang === 'ar' ? 'rtl' : 'ltr';
         document.querySelector('[onclick="toggleLang()"]').innerText = curLang === 'ar' ? 'EN' : 'عربي';
+
         const t = langData[curLang];
         document.getElementById('txt-title').innerText = t.title;
         document.getElementById('txt-subtitle').innerText = t.subtitle;
         document.getElementById('txt-add').innerText = t.add;
-        document.getElementById('txt-exp').innerText = t.exp;
+        document.getElementById('txt-print').innerText = t.print;
         document.getElementById('txt-rst').innerText = t.rst;
         document.getElementById('th-name').innerText = t.th_name;
         document.getElementById('th-exam').innerText = t.th_exam;
         document.getElementById('th-td').innerText = t.th_td;
         document.getElementById('th-coef').innerText = t.th_coef;
         document.getElementById('th-mode').innerText = t.th_mode;
+        document.getElementById('studentName').placeholder = curLang === 'ar' ? "اكتب اسمك هنا..." : "Enter your name...";
+        
+        // Transcript Translation
+        document.getElementById('trans-uni').innerText = t.uni;
+        document.getElementById('trans-club').innerText = t.club;
+        document.getElementById('trans-lbl-name').innerText = t.lbl_name;
+        document.getElementById('trans-lbl-date').innerText = t.lbl_date;
+        document.getElementById('tr-sub').innerText = t.tr_sub;
+        document.getElementById('tr-avg').innerText = t.tr_avg;
+        document.getElementById('tr-coef').innerText = t.tr_coef;
+        document.getElementById('tr-res').innerText = t.tr_res;
+
         document.getElementById('btn-about').innerText = t.about_btn;
         document.getElementById('about-title').innerText = t.about_title;
         document.getElementById('about-text').innerHTML = t.about_text;
+        
         startWelcomeType();
         renderTable();
     }
@@ -293,9 +405,11 @@
     }
 
     function resetData() {
-        if(confirm(curLang === 'ar' ? "هل أنت متأكد؟ سيتم حذف جميع البيانات." : "Are you sure? All data will be cleared.")) {
+        if(confirm(curLang === 'ar' ? "هل أنت متأكد؟" : "Are you sure?")) {
             subjects = [{name: "", exam: null, td: null, coef: 1, mode: "mixed"}];
+            document.getElementById('studentName').value = "";
             localStorage.removeItem('smaic_subjects');
+            localStorage.removeItem('smaic_name');
             renderTable();
             document.getElementById('finalScore').innerText = "0.00";
             document.getElementById('motivationQuote').style.display = 'none';
@@ -308,7 +422,7 @@
         let totalWeighted = 0, totalCoef = 0, hasData = false;
         
         subjects.forEach(s => {
-            if(s.exam !== null || s.td !== null) hasData = true; // شرط البيانات المخفف
+            if(s.exam !== null || s.td !== null) hasData = true;
             let m = 0; const ex = s.exam || 0; const td = s.td || 0;
             if (s.mode === 'mixed') m = ex * 0.67 + td * 0.33;
             else if (s.mode === '7030') m = ex * 0.70 + td * 0.30;
@@ -318,6 +432,7 @@
             else m = ex;
             totalWeighted += m * (s.coef||1);
             totalCoef += (s.coef||1);
+            s.calculatedAvg = m; // Save for print
         });
 
         const gpa = totalCoef > 0 ? totalWeighted / totalCoef : 0;
@@ -335,6 +450,7 @@
             }
         }
         updateMotivation(gpa, hasData);
+        return { gpa, totalCoef };
     }
 
     function triggerConfetti() {
@@ -351,22 +467,70 @@
         let cat;
         if (gpa >= 17) cat = q.diamond; else if (gpa >= 15) cat = q.gold; else if (gpa >= 12) cat = q.silver; else if (gpa >= 10) cat = q.resilience; else cat = q.challenge;
 
-        // إزالة شرط العشوائية لضمان الظهور
-        const randomText = cat.text[Math.floor(Math.random() * cat.text.length)];
-        const sig = langData[curLang].sig;
-        
-        quoteBox.innerHTML = `
-            <span class="badge-title">${cat.title}</span>
-            <div class="quote-text">"${randomText}"</div>
-            <div class="club-signature">${sig}</div>
-        `;
-        
-        if(gpa >= 15) quoteBox.style.borderColor = "#fbbf24"; else if(gpa < 10) quoteBox.style.borderColor = "#ef4444"; else quoteBox.style.borderColor = "#4f46e5";
-        
-        if(curLang === 'ar') { quoteBox.style.borderRightWidth = "6px"; quoteBox.style.borderLeftWidth = "0"; } 
-        else { quoteBox.style.borderRightWidth = "0"; quoteBox.style.borderLeftWidth = "6px"; }
-        
+        if(quoteBox.style.display === 'none' || Math.random() > 0.8) {
+            const randomText = cat.text[Math.floor(Math.random() * cat.text.length)];
+            const sig = langData[curLang].sig;
+            
+            quoteBox.innerHTML = `
+                <span class="badge-title">${cat.title}</span>
+                <div class="quote-text">"${randomText}"</div>
+                <div class="club-signature">${sig}</div>
+            `;
+            
+            if(gpa >= 15) quoteBox.style.borderColor = "#fbbf24"; else if(gpa < 10) quoteBox.style.borderColor = "#ef4444"; else quoteBox.style.borderColor = "#4f46e5";
+            if(curLang === 'ar') { quoteBox.style.borderRightWidth = "6px"; quoteBox.style.borderLeftWidth = "0"; } 
+            else { quoteBox.style.borderRightWidth = "0"; quoteBox.style.borderLeftWidth = "6px"; }
+        }
         quoteBox.style.display = 'block';
+    }
+
+    // --- وظيفة الطباعة الاحترافية ---
+    function printOfficialTranscript() {
+        // 1. Fill data
+        const student = document.getElementById('studentName').value || (curLang==='ar'?'فاعل خير':'Anonymous');
+        document.getElementById('printName').innerText = student;
+        document.getElementById('printDate').innerText = new Date().toLocaleDateString();
+        
+        const tbody = document.getElementById('printBody');
+        tbody.innerHTML = '';
+        
+        subjects.forEach(s => {
+            if(!s.name && !s.exam && !s.td) return;
+            const avg = s.calculatedAvg || 0;
+            const decision = avg >= 10 ? 
+                `<span style="color:green">${langData[curLang].tr_pass}</span>` : 
+                `<span style="color:red">${langData[curLang].tr_fail}</span>`;
+            
+            tbody.innerHTML += `
+                <tr>
+                    <td style="text-align:${curLang==='ar'?'right':'left'}; padding:8px 15px;">${s.name || (curLang==='ar'?'مادة':'Subject')}</td>
+                    <td>${avg.toFixed(2)}</td>
+                    <td>${s.coef}</td>
+                    <td>${decision}</td>
+                </tr>
+            `;
+        });
+
+        const { gpa, totalCoef } = calculate();
+        document.getElementById('printGPA').innerText = gpa.toFixed(2);
+        document.getElementById('printCoef').innerText = totalCoef;
+        document.getElementById('printMention').innerText = gpa >= 10 ? langData[curLang].tr_pass : langData[curLang].tr_fail;
+
+        // 2. Capture and download
+        const node = document.getElementById('officialTranscript');
+        const originalPos = node.style.position;
+        // Make it visible for capture (but off-screen)
+        
+        htmlToImage.toPng(node, { backgroundColor: '#fff' })
+            .then(function (dataUrl) {
+                const link = document.createElement('a');
+                link.download = `SMAIC-Transcript-${student}-${new Date().getTime()}.png`;
+                link.href = dataUrl;
+                link.click();
+            })
+            .catch(function (error) {
+                alert("Error generating transcript.");
+            });
     }
 
     function toggleAbout() {
@@ -378,21 +542,6 @@
     function toggleTheme() {
         const html = document.documentElement;
         html.setAttribute('data-theme', html.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
-    }
-
-    function exportToImage() {
-        const node = document.getElementById('captureArea');
-        const controls = document.querySelector('.controls');
-        const aboutDiv = document.querySelector('.footer-area');
-        const headerBtns = document.querySelector('.header-actions');
-        
-        controls.style.display = 'none'; aboutDiv.style.display = 'none'; headerBtns.style.display = 'none';
-        htmlToImage.toPng(node, { backgroundColor: getComputedStyle(document.body).getPropertyValue('--card-bg') }).then(function (dataUrl) {
-            const link = document.createElement('a'); link.download = `SMAIC-GPA-${new Date().getTime()}.png`; link.href = dataUrl; link.click();
-            controls.style.display = 'flex'; aboutDiv.style.display = 'block'; headerBtns.style.display = 'flex';
-        }).catch(function (error) {
-            alert("Error saving image."); controls.style.display = 'flex'; aboutDiv.style.display = 'block'; headerBtns.style.display = 'flex';
-        });
     }
 </script>
 
