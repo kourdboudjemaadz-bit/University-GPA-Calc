@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMAIC - GPA Calculator | Royal Edition</title>
+    <title>SMAIC - GPA Calculator</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
@@ -30,117 +29,56 @@
         }
 
         body { font-family: var(--font-ar); background: var(--bg-gradient); margin: 0; padding: 20px; color: var(--text-main); min-height: 100vh; transition: 0.3s; }
-        html[lang="en"] body { font-family: var(--font-en); }
-
-        /* الحاوية الرئيسية مع تحسين التمركز */
+        
         .container {
             width: 100%; max-width: 900px; background: var(--card-bg);
             border-radius: 24px; margin: 0 auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
             overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* الختم الملكي */
-        .watermark {
-            position: absolute; top: 50%; left: 50%; width: 500px; height: 500px;
-            transform: translate(-50%, -50%) rotate(-10deg); z-index: 0;
-            pointer-events: none; opacity: 0.12;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cdefs%3E%3Cpath id='textcircle' d='M250,400 a150,150 0 0,1 0,-300 a150,150 0 0,1 0,300 Z' transform='rotate(180,250,250)'/%3E%3C/defs%3E%3Cg style='fill:%23cba135; stroke:%23cba135;'%3E%3Ccircle cx='250' cy='250' r='240' style='fill:none; stroke-width:4; opacity: 0.7;'/%3E%3Ccircle cx='250' cy='250' r='230' style='fill:none; stroke-width:1; opacity: 0.5;'/%3E%3Ccircle cx='250' cy='250' r='180' style='fill:none; stroke-width:3; opacity: 0.7;'/%3E%3Ctext x='250' y='235' text-anchor='middle' style='font-size:85px; font-weight:900; font-family:serif; stroke:none;'%3ESMAIC%3C/text%3E%3Ctext x='250' y='285' text-anchor='middle' style='font-size:28px; font-weight:bold; letter-spacing:8px; stroke:none; opacity:0.8;'%3E2026%3C/text%3E%3Ctext dy='-20' style='stroke:none;'%3E%3CtextPath xlink:href='%23textcircle' startOffset='50%25' text-anchor='middle' style='font-size:26px; font-weight:bold; letter-spacing:2px; font-family: sans-serif;'%3E&#1580;&#1575;&#1605;&#1593;&#1577; &#1608;&#1585;&#1602;&#1604;&#1577; &#9733; PHYSICS %26 AI CLUB &#9733; &#1606;&#1575;&#1583;&#1610; &#1593;&#1604;&#1608;&#1605; &#1575;&#1604;&#1605;&#1575;&#1583;&#1577;%3C/textPath%3E%3C/text%3E%3C/g%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: center; background-size: contain; mix-blend-mode: multiply;
-        }
-        [data-theme="dark"] .watermark { filter: invert(1); opacity: 0.08; }
-
-        /* العناصر الأمامية */
-        header, .dashboard, .controls, .table-container, #aboutModal, .footer-area { position: relative; z-index: 1; }
-
-        header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 30px; text-align: center; }
+        header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 30px; text-align: center; position: relative; }
         .header-actions { position: absolute; top: 20px; display: flex; gap: 10px; }
         html[dir="rtl"] .header-actions { left: 20px; } html[dir="ltr"] .header-actions { right: 20px; }
-        .icon-btn { background: rgba(255,255,255,0.2); border: none; width: 35px; height: 35px; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; transition: 0.2s; }
         
-        #welcome-msg { text-align: center; color: var(--primary); font-weight: 700; margin: 15px 20px; min-height: 1.5em; font-size: 1rem; line-height: 1.5; }
+        .icon-btn { background: rgba(255,255,255,0.2); border: none; width: 35px; height: 35px; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; }
         
-        /* تحسين تمركز الداشبورد */
-        .dashboard { 
-            padding: 30px 20px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center;
-            text-align: center; 
-        }
-        .score-display { 
-            font-size: 3.5rem; 
-            font-weight: 900; 
-            margin-top: -30px; 
-            position: relative; 
-            z-index: 2; 
-            text-shadow: 0 5px 15px rgba(0,0,0,0.1); 
-        }
+        .dashboard { padding: 30px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .score-display { font-size: 3.5rem; font-weight: 900; margin-top: -30px; position: relative; z-index: 2; }
         .gauge-wrapper { position: relative; width: 220px; height: 110px; margin: 0 auto; overflow: hidden; }
         .gauge-bg { width: 220px; height: 110px; background: rgba(0,0,0,0.1); border-radius: 110px 110px 0 0; }
         .gauge-fill { width: 220px; height: 110px; background: var(--success); border-radius: 110px 110px 0 0; position: absolute; top: 0; left: 0; transform-origin: center bottom; transform: rotate(-180deg); transition: 1s cubic-bezier(0.34, 1.56, 0.64, 1); }
         
-        #motivationQuote { margin: 20px auto; padding: 25px; border-radius: 16px; background: linear-gradient(145deg, #1e293b, #0f172a); color: #f1f5f9; border-right: 6px solid var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.15); max-width: 85%; display: none; animation: slideUp 0.6s ease; text-align: right; }
-        html[dir="ltr"] #motivationQuote { border-right: none; border-left: 6px solid var(--accent); text-align: left; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .controls { padding: 15px; display: flex; gap: 10px; flex-wrap: wrap; background: var(--mention-bg); justify-content: center; }
+        button { padding: 12px 20px; border-radius: 12px; border: none; cursor: pointer; font-family: inherit; font-weight: 700; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
-        .badge-title { display: block; color: var(--accent); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; font-weight: 800; }
-        .quote-text { font-size: 1.1rem; line-height: 1.6; font-weight: 600; margin-bottom: 15px; }
-        .club-signature { font-size: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; opacity: 0.7; font-weight: 300; }
+        .btn-add { background: var(--primary); color: white; flex: 2; min-width: 200px; }
+        .btn-exp { background: #1e293b; color: white; flex: 1; }
+        .btn-rst { background: white; color: var(--danger); border: 1px solid var(--danger); flex: 1; }
 
-        /* تحسين تمركز الأزرار */
-        .controls { 
-            padding: 15px; 
-            display: flex; 
-            gap: 10px; 
-            flex-wrap: wrap; 
-            background: var(--mention-bg); 
-            justify-content: center; 
-        }
-        button { padding: 12px 20px; border-radius: 12px; border: none; cursor: pointer; font-family: inherit; font-weight: 700; transition: 0.2s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .table-container { overflow-x: auto; padding: 20px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        th { color: #64748b; font-size: 0.85rem; padding-bottom: 10px; }
+        td { background: var(--input-bg); padding: 5px; border-radius: 8px; }
         
-        .btn-add { background: var(--primary); color: white; flex: 2; min-width: 150px; }
-        .btn-exp { background: #1e293b; color: white; flex: 1; min-width: 120px; }
-        .btn-pdf { background: #dc2626; color: white; flex: 1; min-width: 120px; } /* زر PDF الجديد */
-        .btn-rst { background: white; color: var(--danger); border: 1px solid var(--danger); flex: 0; min-width: 100px; }
-        [data-theme="dark"] .btn-rst { background: transparent; }
-
-        .table-container { overflow-x: auto; padding: 0 15px 20px; display: flex; justify-content: center; }
-        table { width: 100%; max-width: 850px; border-collapse: separate; border-spacing: 0 10px; min-width: 600px; }
-        th { color: #64748b; font-size: 0.9rem; padding-bottom: 10px; font-weight: 600; text-align: center; }
-        td { background: var(--input-bg); padding: 5px; border-top: 1px solid rgba(0,0,0,0.05); border-bottom: 1px solid rgba(0,0,0,0.05); }
-        html[dir="rtl"] td:first-child { border-radius: 0 10px 10px 0; border-right: 4px solid var(--primary); }
-        html[dir="rtl"] td:last-child { border-radius: 10px 0 0 10px; }
-        html[dir="ltr"] td:first-child { border-radius: 10px 0 0 10px; border-left: 4px solid var(--primary); border-right: none; }
-        html[dir="ltr"] td:last-child { border-radius: 0 10px 10px 0; }
+        input, select { width: 100%; padding: 10px; border: none; background: transparent; text-align: center; font-weight: 600; color: inherit; outline: none; }
         
-        /* تمركز المدخلات */
-        input, select { width: 100%; padding: 10px; border: 1px solid transparent; background: transparent; font-family: inherit; color: inherit; text-align: center; font-weight: 600; outline: none; }
-        input:focus, select:focus { background: rgba(255,255,255,0.5); border-radius: 5px; }
-        [data-theme="dark"] input:focus { background: rgba(0,0,0,0.2); }
-        input:disabled { opacity: 0.3; cursor: not-allowed; }
-        
-        #aboutModal { display: none; padding: 30px; background: var(--mention-bg); border-top: 3px solid var(--accent); animation: fadeIn 0.5s; position: relative; overflow: hidden; margin-top: 20px; text-align: center; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        #motivationQuote { margin: 20px auto; padding: 20px; border-radius: 15px; background: #1e293b; color: #fff; border-right: 5px solid var(--accent); display: none; max-width: 80%; }
     </style>
 </head>
 <body>
 
-<audio id="sound-success" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
-<audio id="sound-fail" src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
+<audio id="sound-success" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
+<audio id="sound-fail" src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3" preload="auto"></audio>
 
 <div class="container" id="captureArea">
-    <div class="watermark"></div>
     <header>
         <div class="header-actions">
             <button onclick="toggleTheme()" class="icon-btn">🌙</button>
             <button onclick="toggleLang()" class="icon-btn">EN</button>
         </div>
-        <h1 id="txt-title" style="margin:0; font-size:1.8rem; font-weight: 800;">نادي علوم المادة للذكاء الاصطناعي</h1>
-        <h2 id="txt-subtitle" style="margin:5px 0 0; font-weight:400; opacity:0.9; font-size:1rem; letter-spacing: 1px;">SMAIC - GPA CALCULATOR 2026</h2>
+        <h1 id="txt-title">نادي علوم المادة للذكاء الاصطناعي</h1>
+        <h2 id="txt-subtitle" style="font-weight:400; opacity:0.9; font-size:1rem;">SMAIC - GPA CALCULATOR 2026</h2>
     </header>
-
-    <div id="welcome-msg"></div>
 
     <div class="dashboard">
         <div class="gauge-wrapper">
@@ -153,296 +91,110 @@
 
     <div class="controls" data-html2canvas-ignore="true">
         <button class="btn-add" onclick="addRow()"><span id="txt-add">+ إضافة مادة</span></button>
-        <button class="btn-exp" onclick="exportToImage()">📷 <span id="txt-exp">صورة</span></button>
-        <button class="btn-pdf" onclick="exportToPDF()">📄 <span id="txt-pdf">ملف PDF</span></button>
+        <button class="btn-exp" onclick="exportToImage()">📷 <span id="txt-exp">حفظ صورة</span></button>
         <button class="btn-rst" onclick="resetData()"><span id="txt-rst">تصفير</span></button>
     </div>
 
     <div class="table-container">
-        <table id="gradeTable">
+        <table>
             <thead>
                 <tr>
-                    <th width="30%" id="th-name">المادة</th>
-                    <th width="15%" id="th-exam">الامتحان</th>
-                    <th width="15%" id="th-td">TD/TP</th>
-                    <th width="10%" id="th-coef">المعامل</th>
-                    <th width="25%" id="th-mode">النظام</th>
-                    <th width="5%"></th>
+                    <th id="th-name">المادة</th>
+                    <th id="th-exam">الامتحان</th>
+                    <th id="th-td">TD/TP</th>
+                    <th id="th-coef">المعامل</th>
+                    <th id="th-mode">النظام</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
         </table>
     </div>
 
-    <div class="footer-area" style="text-align: center; padding: 15px; background: var(--card-bg);" data-html2canvas-ignore="true">
-        <button onclick="toggleAbout()" id="btn-about" style="background:none; color:var(--text-main); text-decoration:underline; opacity:0.7; font-size: 0.85rem; width: auto; margin: 0 auto; cursor: pointer;">
-            📱 عن التطبيق ورؤية SMAIC
-        </button>
-    </div>
-
-    <div id="aboutModal">
-        <h3 id="about-title">📱 رفيقك الرقمي نحو التميز</h3>
-        <p id="about-text" style="line-height: 1.7;">تم تطوير هذا التطبيق كإحدى مبادرات <b>نادي SMAIC</b>، ليكون جسراً يربط بين جهدك الأكاديمي وطموحك الميداني.</p>
-        <div style="text-align: center; margin-top: 25px; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 15px;">
-            <small style="display:block; font-weight:bold; font-size: 0.9rem;">Developed by: Kourde Boudjamaa</small>
-            <small style="opacity: 0.7;">President of SMAIC | UKMO University</small>
-        </div>
+    <div style="text-align: center; padding: 20px; font-size: 0.8rem; opacity: 0.6;">
+        Developed by: Kourde Boudjamaa | SMAIC President
     </div>
 </div>
 
 <script>
-    const langData = {
-        ar: {
-            title: "نادي علوم المادة للذكاء الاصطناعي", subtitle: "SMAIC - حاسبة المعدل الملكية 2026", welcome: "بوابة SMAIC الرقمية: حيث لا تُقاس قيمتك بما تحمله الورقة، بل بما يستطيعه عقلك..", add: "+ إضافة مادة", exp: "صورة", pdf: "ملف PDF", rst: "تصفير", th_name: "المادة", th_exam: "الامتحان", th_td: "TD/TP", th_coef: "المعامل", th_mode: "النظام", about_btn: "📱 عن التطبيق ورؤية SMAIC", about_title: "📱 رفيقك الرقمي نحو التميز", about_text: "تم تطوير هذا التطبيق كإحدى مبادرات <b>نادي SMAIC</b>، ليكون جسراً يربط بين جهدك الأكاديمي وطموحك الميداني.", ph_name: "اسم المادة...", mode_mixed: "67% إمتحان + 33% TD", mode_70: "70% إمتحان + 30% TD", mode_60: "60% إمتحان + 40% TD", mode_50: "50% إمتحان + 50% TD", mode_100: "100% إمتحان", mode_100td: "100% TD/TP", sig: "الدرجاتُ أرقامٌ عابرة، و SMAIC وطنُ الخالدين.. مكانكَ بين العظماء."
-        },
-        en: {
-            title: "Material Sciences & AI Club", subtitle: "SMAIC - ROYAL GPA CALCULATOR 2026", welcome: "SMAIC Digital Portal: Your value isn't measured by paper, but by what your mind can achieve.", add: "+ Add Subject", exp: "Image", pdf: "Save PDF", rst: "Reset", th_name: "Subject", th_exam: "Exam", th_td: "TD/TP", th_coef: "Coef", th_mode: "Mode", about_btn: "📱 About App & SMAIC Vision", about_title: "📱 Your Digital Companion to Excellence", about_text: "Developed by <b>SMAIC</b>, this app is a bridge connecting your academic effort with your field ambition.", ph_name: "Subject Name...", mode_mixed: "67% Exam + 33% TD", mode_70: "70% Exam + 30% TD", mode_60: "60% Exam + 40% TD", mode_50: "50% Exam + 50% TD", mode_100: "100% Exam", mode_100td: "100% TD/TP", sig: "Grades are fleeting numbers, SMAIC is where legends are made."
-        }
-    };
-
-    const quotesDB = {
-        ar: {
-            diamond: { title: "مقام التفرّد - The Singularity 💎", text: ["أنت لست مجرد رقم، أنت خوارزمية الإبداع التي بلغت الكمال.", "بمعايير SMAIC للتميز.. أنت طاقة إبداعية تجاوزت كل التوقعات.", "في فيزياء التميز، أنت الضوء الذي لا يسبقه شيء."] },
-            gold: { title: "مقام السيادة - The Sovereignty 🥇", text: ["بذكاءٍ سياديّ فرضتَ منطقك؛ أنت أحد الأعمدة التي نراهن عليها.", "لم تطلب المجد، بل المجد سعى إليك.. وفي SMAIC تضع تاجه.", "معدلك الذهبي هو وقودك لتكون قائداً في مجالك العلمي."] },
-            silver: { title: "مقام الاتزان - The Equilibrium 🥈", text: ["أتقنت فن التوازن؛ نرى فيك المادة الخام للقيادة.", "خطواتك ثابتة.. SMAIC هو المكان الأنسب لتطوير مهاراتك.", "أنت في المسار الصحيح لتصنع الفارق في تخصصك."] },
-            resilience: { title: "مقام الثبات - The Ground State 🥉", text: ["عبرتَ بسلام، فالعبرة بمن يمتلك النفس الطويل.", "درجاتك ليست سقفاً لقدراتك، بل هي دافعٌ لتثبت للعالم من أنت.", "النجاح هو بوابة العبور، وفي SMAIC نصنع المجد وراء الأرقام."] },
-            challenge: { title: "مقام الاستعادة - System Reset 🔄", text: ["الضغط العالي هو ما يصنع الألماس؛ سقوطك اليوم هو إعادة تشغيل لنظامك.", "أنا الذي لا يحدُّه رقم.. سأريكم في SMAIC وجهاً آخر للمستحيل.", "المعدل رقم، وإرادتك هي المحرك.. عد لتثبت للجميع من أنت."] }
-        },
-        en: {
-            diamond: { title: "The Singularity Status 💎", text: ["You are not just a number; you are an algorithm of perfection.", "By SMAIC standards, you are a creative energy beyond expectations.", "In the physics of excellence, you are the light that precedes everything."] },
-            gold: { title: "The Sovereignty Status 🥇", text: ["With sovereign intelligence, you imposed your logic.", "You didn't seek glory; glory sought you. At SMAIC, you wear its crown.", "Your golden GPA is your fuel to become a leader in your field."] },
-            silver: { title: "The Equilibrium Status 🥈", text: ["You mastered the art of balance; we see in you the raw material of leadership.", "Steady steps... SMAIC is the place to evolve beyond the paper.", "You are on the right track to make a difference."] },
-            resilience: { title: "The Ground State Status 🥉", text: ["You passed safely; the lesson is in endurance.", "Grades are not your limit; they are a motive to prove who you are.", "Success is the gate, and at SMAIC we build glory beyond numbers."] },
-            challenge: { title: "System Reset Status 🔄", text: ["High pressure creates diamonds; your fall today is a system reboot.", "I am undefined by numbers... I will show you another face of the impossible.", "GPA is a number, will is the engine. Come back stronger."] }
-        }
-    };
-
     let curLang = 'ar';
     let subjects = [{name: "", exam: null, td: null, coef: 1, mode: "mixed"}];
-    let welcomeIndex = 0;
-    let welcomeTimer;
-    let lastState = null;
+    let lastStatus = null;
 
-    function saveData() { localStorage.setItem('smaic_subjects', JSON.stringify(subjects)); }
-    function loadData() {
-        const saved = localStorage.getItem('smaic_subjects');
-        if (saved) subjects = JSON.parse(saved);
-    }
-
-    window.onload = function() {
-        loadData();
-        renderTable();
-        startWelcomeType();
+    const langData = {
+        ar: { title: "نادي علوم المادة للذكاء الاصطناعي", add: "+ إضافة مادة", exp: "صورة", rst: "تصفير", ph_name: "اسم المادة..." },
+        en: { title: "Material Sciences & AI Club", add: "+ Add Subject", exp: "Image", rst: "Reset", ph_name: "Subject Name..." }
     };
 
-    function toggleLang() {
-        curLang = curLang === 'ar' ? 'en' : 'ar';
-        document.documentElement.lang = curLang;
-        document.documentElement.dir = curLang === 'ar' ? 'rtl' : 'ltr';
-        document.querySelector('[onclick="toggleLang()"]').innerText = curLang === 'ar' ? 'EN' : 'عربي';
-        const t = langData[curLang];
-        document.getElementById('txt-title').innerText = t.title;
-        document.getElementById('txt-subtitle').innerText = t.subtitle;
-        document.getElementById('txt-add').innerText = t.add;
-        document.getElementById('txt-exp').innerText = t.exp;
-        document.getElementById('txt-pdf').innerText = t.pdf;
-        document.getElementById('txt-rst').innerText = t.rst;
-        document.getElementById('th-name').innerText = t.th_name;
-        document.getElementById('th-exam').innerText = t.th_exam;
-        document.getElementById('th-td').innerText = t.th_td;
-        document.getElementById('th-coef').innerText = t.th_coef;
-        document.getElementById('th-mode').innerText = t.th_mode;
-        document.getElementById('btn-about').innerText = t.about_btn;
-        document.getElementById('about-title').innerText = t.about_title;
-        document.getElementById('about-text').innerHTML = t.about_text;
-        startWelcomeType();
-        renderTable();
-    }
-
-    function startWelcomeType() {
-        clearTimeout(welcomeTimer);
-        document.getElementById("welcome-msg").innerHTML = "";
-        welcomeIndex = 0;
-        typeWriter();
-    }
-
-    function typeWriter() {
-        const text = langData[curLang].welcome;
-        if (welcomeIndex < text.length) {
-            document.getElementById("welcome-msg").innerHTML += text.charAt(welcomeIndex);
-            welcomeIndex++;
-            welcomeTimer = setTimeout(typeWriter, 30);
-        }
-    }
-
-    function addRow() {
-        subjects.push({name: "", exam: null, td: null, coef: 1, mode: "mixed"});
-        renderTable();
-        saveData();
-    }
-
     function renderTable() {
-        const t = langData[curLang];
         const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = subjects.map((s, i) => {
-            const examDisabled = s.mode === '100td' ? 'disabled' : '';
-            const tdDisabled = s.mode === '100exam' ? 'disabled' : '';
-            return `<tr>
-                <td><input type="text" placeholder="${t.ph_name}" value="${s.name}" oninput="updateData(${i}, 'name', this.value)"></td>
-                <td><input type="number" placeholder="--" step="0.01" value="${s.exam || ''}" oninput="updateData(${i}, 'exam', this.value)" ${examDisabled}></td>
-                <td><input type="number" placeholder="--" step="0.01" value="${s.td || ''}" oninput="updateData(${i}, 'td', this.value)" ${tdDisabled}></td>
+        tbody.innerHTML = subjects.map((s, i) => `
+            <tr>
+                <td><input type="text" placeholder="${langData[curLang].ph_name}" value="${s.name}" oninput="updateData(${i}, 'name', this.value)"></td>
+                <td><input type="number" step="0.01" value="${s.exam || ''}" oninput="updateData(${i}, 'exam', this.value)" ${s.mode==='100td'?'disabled':''}></td>
+                <td><input type="number" step="0.01" value="${s.td || ''}" oninput="updateData(${i}, 'td', this.value)" ${s.mode==='100exam'?'disabled':''}></td>
                 <td><input type="number" value="${s.coef}" oninput="updateData(${i}, 'coef', this.value)"></td>
-                <td><select onchange="updateData(${i}, 'mode', this.value)" style="font-size:0.8rem">
-                    <option value="mixed" ${s.mode === 'mixed' ? 'selected' : ''}>${t.mode_mixed}</option>
-                    <option value="7030" ${s.mode === '7030' ? 'selected' : ''}>${t.mode_70}</option>
-                    <option value="6040" ${s.mode === '6040' ? 'selected' : ''}>${t.mode_60}</option>
-                    <option value="5050" ${s.mode === '5050' ? 'selected' : ''}>${t.mode_50}</option>
-                    <option value="100exam" ${s.mode === '100exam' ? 'selected' : ''}>${t.mode_100}</option>
-                    <option value="100td" ${s.mode === '100td' ? 'selected' : ''}>${t.mode_100td}</option>
+                <td><select onchange="updateData(${i}, 'mode', this.value)">
+                    <option value="mixed" ${s.mode==='mixed'?'selected':''}>أساسي</option>
+                    <option value="100exam" ${s.mode==='100exam'?'selected':''}>إمتحان فقط</option>
+                    <option value="100td" ${s.mode==='100td'?'selected':''}>تطبيقي فقط</option>
                 </select></td>
-                <td style="text-align:center"><button onclick="removeRow(${i})" style="background:none; color:var(--danger); padding:0; width:30px; margin:0 auto;">✕</button></td>
-            </tr>`;
-        }).join('');
+                <td><button onclick="removeRow(${i})" style="color:red; background:none;">✕</button></td>
+            </tr>
+        `).join('');
         calculate();
-    }
-
-    function updateData(index, field, value) {
-        if(field === 'name' || field === 'mode') {
-            subjects[index][field] = value;
-            if(field === 'mode') renderTable();
-        } else {
-            subjects[index][field] = value === "" ? null : parseFloat(value);
-        }
-        calculate();
-        saveData();
-    }
-
-    function removeRow(index) {
-        subjects.splice(index, 1);
-        renderTable();
-        saveData();
-    }
-
-    function resetData() {
-        if(confirm(curLang === 'ar' ? "هل أنت متأكد؟ سيتم حذف جميع البيانات." : "Are you sure? All data will be cleared.")) {
-            subjects = [{name: "", exam: null, td: null, coef: 1, mode: "mixed"}];
-            localStorage.removeItem('smaic_subjects');
-            renderTable();
-            document.getElementById('finalScore').innerText = "0.00";
-            document.getElementById('motivationQuote').style.display = 'none';
-            document.getElementById('gaugeFill').style.transform = 'rotate(-180deg)';
-            lastState = null;
-        }
     }
 
     function calculate() {
         let totalWeighted = 0, totalCoef = 0, hasData = false;
-        
         subjects.forEach(s => {
-            if(s.exam !== null || s.td !== null) hasData = true; 
-            let m = 0; const ex = s.exam || 0; const td = s.td || 0;
-            if (s.mode === 'mixed') m = ex * 0.67 + td * 0.33;
-            else if (s.mode === '7030') m = ex * 0.70 + td * 0.30;
-            else if (s.mode === '6040') m = ex * 0.60 + td * 0.40;
-            else if (s.mode === '5050') m = ex * 0.50 + td * 0.50;
-            else if (s.mode === '100td') m = td;
-            else m = ex;
+            if(s.exam !== null || s.td !== null) hasData = true;
+            let m = 0;
+            if (s.mode === 'mixed') m = (s.exam||0)*0.67 + (s.td||0)*0.33;
+            else if (s.mode === '100td') m = (s.td||0);
+            else m = (s.exam||0);
             totalWeighted += m * (s.coef||1);
             totalCoef += (s.coef||1);
         });
 
         const gpa = totalCoef > 0 ? totalWeighted / totalCoef : 0;
         document.getElementById('finalScore').innerText = gpa.toFixed(2);
-        const angle = -180 + Math.min((gpa / 20) * 180, 180);
-        document.getElementById('gaugeFill').style.transform = `rotate(${angle}deg)`;
-        
+        document.getElementById('gaugeFill').style.transform = `rotate(${-180 + (gpa/20)*180}deg)`;
+
         if (hasData && gpa > 0) {
-            let currentState = gpa >= 10 ? 'pass' : 'fail';
-            if (currentState !== lastState) {
-                const soundId = currentState === 'pass' ? 'sound-success' : 'sound-fail';
-                document.getElementById(soundId).play().catch(e=>{});
-                if (currentState === 'pass') triggerConfetti();
-                lastState = currentState;
+            let status = gpa >= 10 ? 'pass' : 'fail';
+            if (status !== lastStatus) {
+                document.getElementById(status === 'pass' ? 'sound-success' : 'sound-fail').play().catch(()=>{});
+                if(status === 'pass') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                lastStatus = status;
             }
         }
-        updateMotivation(gpa, hasData);
-    }
-
-    function triggerConfetti() {
-        if (typeof confetti === 'function') {
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#4f46e5', '#fbbf24', '#10b981'] });
-        }
-    }
-
-    function updateMotivation(gpa, hasData) {
-        const quoteBox = document.getElementById('motivationQuote');
-        if (!hasData || gpa === 0) { quoteBox.style.display = 'none'; return; }
-
-        let q = quotesDB[curLang];
-        let cat;
-        if (gpa >= 17) cat = q.diamond; else if (gpa >= 15) cat = q.gold; else if (gpa >= 12) cat = q.silver; else if (gpa >= 10) cat = q.resilience; else cat = q.challenge;
-
-        const randomText = cat.text[Math.floor(Math.random() * cat.text.length)];
-        const sig = langData[curLang].sig;
         
-        quoteBox.innerHTML = `
-            <span class="badge-title">${cat.title}</span>
-            <div class="quote-text">"${randomText}"</div>
-            <div class="club-signature">${sig}</div>
-        `;
-        
-        if(gpa >= 15) quoteBox.style.borderColor = "#fbbf24"; else if(gpa < 10) quoteBox.style.borderColor = "#ef4444"; else quoteBox.style.borderColor = "#4f46e5";
-        quoteBox.style.display = 'block';
+        const q = document.getElementById('motivationQuote');
+        if(hasData && gpa > 0) {
+            q.style.display = 'block';
+            q.innerText = gpa >= 10 ? "أحسنت! استمر في التميز مع SMAIC" : "فرصة أخرى قادمة، لا تتوقف هنا!";
+        } else { q.style.display = 'none'; }
     }
 
-    function toggleAbout() {
-        const modal = document.getElementById('aboutModal');
-        modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
-        if(modal.style.display === 'block') modal.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function toggleTheme() {
-        const html = document.documentElement;
-        html.setAttribute('data-theme', html.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
-    }
+    function updateData(i, f, v) { subjects[i][f] = (f==='name'||f==='mode')? v : (v===""?null:parseFloat(v)); if(f==='mode') renderTable(); else calculate(); }
+    function addRow() { subjects.push({name: "", exam: null, td: null, coef: 1, mode: "mixed"}); renderTable(); }
+    function removeRow(i) { subjects.splice(i, 1); renderTable(); }
+    function toggleTheme() { document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme')==='light'?'dark':'light'); }
+    function toggleLang() { curLang = curLang==='ar'?'en':'ar'; renderTable(); }
+    function resetData() { subjects = [{name: "", exam: null, td: null, coef: 1, mode: "mixed"}]; lastStatus = null; renderTable(); }
 
     function exportToImage() {
         const node = document.getElementById('captureArea');
-        const controls = document.querySelector('.controls');
-        const aboutDiv = document.querySelector('.footer-area');
-        const headerBtns = document.querySelector('.header-actions');
-        
-        controls.style.display = 'none'; aboutDiv.style.display = 'none'; headerBtns.style.display = 'none';
-        
-        htmlToImage.toPng(node, { backgroundColor: getComputedStyle(document.body).getPropertyValue('--card-bg') }).then(function (dataUrl) {
-            const link = document.createElement('a'); link.download = `SMAIC-GPA-${new Date().getTime()}.png`; link.href = dataUrl; link.click();
-            controls.style.display = 'flex'; aboutDiv.style.display = 'block'; headerBtns.style.display = 'flex';
-        }).catch(function (error) {
-            alert("Error saving image."); controls.style.display = 'flex'; aboutDiv.style.display = 'block'; headerBtns.style.display = 'flex';
+        htmlToImage.toPng(node).then(dataUrl => {
+            const link = document.createElement('a');
+            link.download = `SMAIC-Result-${new Date().getTime()}.png`;
+            link.href = dataUrl;
+            link.click();
         });
     }
 
-    function exportToPDF() {
-        const element = document.getElementById('captureArea');
-        const controls = document.querySelector('.controls');
-        const headerBtns = document.querySelector('.header-actions');
-        const footer = document.querySelector('.footer-area');
-        
-        controls.style.display = 'none'; headerBtns.style.display = 'none'; footer.style.display = 'none';
-
-        const opt = {
-            margin: [10, 10],
-            filename: `SMAIC-GPA-${new Date().getTime()}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, letterRendering: true, windowWidth: element.scrollWidth },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        html2pdf().set(opt).from(element).save().then(() => {
-            controls.style.display = 'flex'; headerBtns.style.display = 'flex'; footer.style.display = 'block';
-        });
-    }
+    window.onload = renderTable;
 </script>
-
 </body>
 </html>
