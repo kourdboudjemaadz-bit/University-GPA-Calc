@@ -53,15 +53,26 @@
         html[dir="rtl"] .header-actions { left: 20px; } html[dir="ltr"] .header-actions { right: 20px; }
         .icon-btn { background: rgba(255,255,255,0.2); border: none; width: 35px; height: 35px; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; transition: 0.2s; }
         
-        /* === الجزء المعدل: العداد العصري الجديد === */
         .dashboard { padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         .score-display { font-size: 3.5rem; font-weight: 900; margin-top: -30px; position: relative; z-index: 2; text-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        
+        /* === تعديل العداد (Gauge) ليكون عصرياً === */
         .gauge-wrapper { position: relative; width: 220px; height: 110px; margin: 0 auto; overflow: visible; }
+        /* حذفنا الستايلات القديمة (bg, fill) وأضفنا ستايلات SVG */
         .gauge-svg { width: 100%; height: 100%; overflow: visible; }
         .gauge-bg-arc { fill: none; stroke: rgba(0,0,0,0.1); stroke-width: 12; stroke-linecap: round; }
         [data-theme="dark"] .gauge-bg-arc { stroke: rgba(255,255,255,0.1); }
-        .gauge-value-arc { fill: none; stroke: url(#gaugeGradient); stroke-width: 12; stroke-linecap: round; stroke-dasharray: 251.2; stroke-dashoffset: 251.2; transition: stroke-dashoffset 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); filter: drop-shadow(0 0 5px rgba(16, 185, 129, 0.3)); }
-        /* ========================================= */
+        .gauge-fill-arc { 
+            fill: none; 
+            stroke: url(#gaugeGradient); /* تدرج لوني */
+            stroke-width: 12; 
+            stroke-linecap: round;
+            stroke-dasharray: 251.2; /* محيط القوس */
+            stroke-dashoffset: 251.2; /* البداية فارغة */
+            transition: stroke-dashoffset 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            filter: drop-shadow(0 0 5px rgba(79, 70, 229, 0.4)); /* توهج */
+        }
+        /* ======================================= */
         
         #motivationQuote { margin: 20px auto; padding: 25px; border-radius: 16px; background: linear-gradient(145deg, #1e293b, #0f172a); color: #f1f5f9; border-right: 6px solid var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.15); max-width: 85%; display: none; animation: slideUp 0.6s ease; text-align: right; }
         html[dir="ltr"] #motivationQuote { border-right: none; border-left: 6px solid var(--accent); text-align: left; }
@@ -92,6 +103,9 @@
         input:focus, select:focus { background: rgba(255,255,255,0.5); border-radius: 5px; }
         [data-theme="dark"] input:focus { background: rgba(0,0,0,0.2); }
 
+        /* ========================
+           تنسيق كشف النقاط (A4 Compact)
+           ======================== */
         #transcript-template {
             display: none;
             background: white;
@@ -141,16 +155,16 @@
 
     <div class="dashboard">
         <div class="gauge-wrapper">
-            <svg class="gauge-svg" viewBox="0 0 200 110">
+             <svg class="gauge-svg" viewBox="0 0 200 110">
                 <defs>
                     <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style="stop-color:var(--danger); stop-opacity:1" />
-                        <stop offset="50%" style="stop-color:var(--accent); stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:var(--success); stop-opacity:1" />
+                        <stop offset="0%" style="stop-color:var(--danger);stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:var(--accent);stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:var(--success);stop-opacity:1" />
                     </linearGradient>
                 </defs>
                 <path class="gauge-bg-arc" d="M 20 100 A 80 80 0 0 1 180 100" />
-                <path id="gaugeFill" class="gauge-value-arc" d="M 20 100 A 80 80 0 0 1 180 100" />
+                <path id="gaugeFill" class="gauge-fill-arc" d="M 20 100 A 80 80 0 0 1 180 100" />
             </svg>
         </div>
         <div class="score-display" id="finalScore">0.00</div>
@@ -356,6 +370,7 @@
             localStorage.removeItem('smaic_subjects'); renderTable();
             document.getElementById('finalScore').innerText = "0.00";
             document.getElementById('motivationQuote').style.display = 'none';
+            /* تصفير العداد الجديد */
             document.getElementById('gaugeFill').style.strokeDashoffset = 251.2;
         }
     }
@@ -370,11 +385,12 @@
         const gpa = totalCoef > 0 ? totalWeighted / totalCoef : 0;
         document.getElementById('finalScore').innerText = gpa.toFixed(2);
         
-        // === تحديث العداد العصري ===
+        // === تحديث العداد العصري الجديد ===
+        // المحيط الكامل لنصف الدائرة (PI * 80) = 251.2
         const circumference = 251.2;
         const offset = circumference - ((Math.min(gpa, 20) / 20) * circumference);
         document.getElementById('gaugeFill').style.strokeDashoffset = offset;
-        // ==========================
+        // ======================================
 
         if (hasData && gpa > 0) {
             let currentState = gpa >= 10 ? 'pass' : 'fail';
